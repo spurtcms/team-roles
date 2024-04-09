@@ -5,7 +5,7 @@ import (
 	"gorm.io/gorm"
 )
 
-// In Default superadmin and roleid 1 have all permissions
+// In Default superadmin or roleid 1 have all permissions
 type Config struct {
 	AuthEnable       bool
 	PermissionEnable bool
@@ -22,13 +22,6 @@ type PermissionConfig struct {
 	RoleId           int
 	RoleName         string
 	DB               *gorm.DB
-}
-
-type Permissions struct {
-	DBString         *gorm.DB
-	AuthEnable       bool
-	PermissionEnable bool
-	Authenticate     auth.Authentication
 	AuthFlg          bool
 	PermissionFlg    bool
 }

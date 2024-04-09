@@ -31,7 +31,7 @@ func (RoleConf PermissionConfig) RoleList(rolelist rolelist) (roles []tblrole, r
 	if RoleConf.AuthEnable && !RoleConf.Authenticate.AuthFlg {
 
 		return []tblrole{}, 0, ErrorAuth
-	}
+	}	
 
 	if RoleConf.PermissionEnable && !RoleConf.Authenticate.PermissionFlg {
 

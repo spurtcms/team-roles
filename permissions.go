@@ -30,12 +30,12 @@ func (permission PermissionConfig) IsGranted(modulename string, permisison Actio
 
 		var modpermissions TblModulePermission
 
-		if err := permission.DB.Table("tbl_modules").Where("module_name=?", modulename).Find(&module).Error; err != nil {
+		if err := permission.DB.Model(TblModule{}).Where("module_name=? and parent_id !=0", modulename).Find(&module).Error; err != nil {
 
 			return false, err
 		}
 
-		if err1 := permission.DB.Table("tbl_module_permissions").Where("display_name=?", modulename).Find(&modpermissions).Error; err1 != nil {
+		if err1 := permission.DB.Model(TblModulePermission{}).Where("display_name=?", modulename).Find(&modpermissions).Error; err1 != nil {
 
 			return false, err1
 		}
@@ -53,14 +53,14 @@ func (permission PermissionConfig) IsGranted(modulename string, permisison Actio
 
 		if permisison == "CRUD" {
 
-			if err := permission.DB.Table("tbl_module_permissions").Where("id=? and (full_access_permission=1 or display_name='View' or display_name='Update' or  display_name='Create' or display_name='Delete')", modid).Find(&modulepermission).Error; err != nil {
+			if err := permission.DB.Model(TblModulePermission{}).Where("id=? and (full_access_permission=1 or display_name='View' or display_name='Update' or  display_name='Create' or display_name='Delete')", modid).Find(&modulepermission).Error; err != nil {
 
 				return false, err
 			}
 
 		} else {
 
-			if err := permission.DB.Table("tbl_module_permissions").Where("module_id=? and display_name=?", modid, permisison).Find(&modulepermission).Error; err != nil {
+			if err := permission.DB.Model(TblModulePermission{}).Where("module_id=? and display_name=?", modid, permisison).Find(&modulepermission).Error; err != nil {
 
 				return false, err
 			}
@@ -71,14 +71,18 @@ func (permission PermissionConfig) IsGranted(modulename string, permisison Actio
 
 			var rolecheck TblRolePermission
 
-			if err := permission.DB.Table("tbl_role_permissions").Where("permission_id=? and role_id=?", val.Id, permission.RoleId).First(&rolecheck).Error; err != nil {
+			if err := permission.DB.Model(TblRolePermission{}).Where("permission_id=? and role_id=?", val.Id, permission.RoleId).First(&rolecheck).Error; err != nil {
 
 				return false, err
 			}
 
 		}
 
+		permission.PermissionFlg = true
+
 	}
+
+	permission.PermissionFlg = true
 
 	return true, nil
 
