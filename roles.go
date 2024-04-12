@@ -8,6 +8,8 @@ import (
 // role&permission setup config
 func RoleSetup(config Config) *PermissionConfig {
 
+	AutoMigration(config.DB)
+
 	return &PermissionConfig{
 		AuthEnable:       config.AuthEnable,
 		PermissionEnable: config.PermissionEnable,

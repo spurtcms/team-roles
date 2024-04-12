@@ -7,22 +7,8 @@ import (
 	"gorm.io/gorm"
 )
 
-type Action string
-
-const ( //for permission check
-	Create Action = "Create"
-
-	Read Action = "View"
-
-	Update Action = "Update"
-
-	Delete Action = "Delete"
-
-	CRUD Action = "CRUD"
-)
-
 // Check User Permission
-func (permission PermissionConfig) IsGranted(modulename string, permisison Action) (bool, error) {
+func (permission *PermissionConfig) IsGranted(modulename string, permisison Action) (bool, error) {
 
 	if permission.RoleId != 1 || permission.RoleName != "Super Admin" { //if not an admin user
 
