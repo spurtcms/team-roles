@@ -13,28 +13,28 @@ type RoleCreation struct {
 }
 
 type tblrole struct {
-	Id          int `gorm:"primaryKey;auto_increment"`
-	Name        string
-	Description string
-	Slug        string
-	IsActive    int
-	IsDeleted   int
-	CreatedOn   time.Time
-	CreatedBy   int
-	ModifiedOn  time.Time `gorm:"DEFAULT:NULL"`
-	ModifiedBy  int       `gorm:"DEFAULT:NULL"`
+	Id          int       `gorm:"column:id"`
+	Name        string    `gorm:"column:name"`
+	Description string    `gorm:"column:description"`
+	Slug        string    `gorm:"column:slug"`
+	IsActive    int       `gorm:"column:is_active"`
+	IsDeleted   int       `gorm:"column:is_deleted"`
+	CreatedOn   time.Time `gorm:"column:created_on"`
+	CreatedBy   int       `gorm:"column:created_by"`
+	ModifiedOn  time.Time `gorm:"column:modified_on;DEFAULT:NULL"`
+	ModifiedBy  int       `gorm:"column:modified_by;DEFAULT:NULL"`
 	CreatedDate string    `gorm:"-:migration;<-:false"`
 	User        []tbluser `gorm:"-"`
 }
 
 type tblroleuser struct {
-	Id           int `gorm:"primaryKey;auto_increment"`
-	RoleId       int
-	UserId       int
-	CreatedBy    int
-	CreatedOn    time.Time
-	ModifiedBy   int       `gorm:"DEFAULT:NULL"`
-	ModifiedOn   time.Time `gorm:"DEFAULT:NULL"`
+	Id           int       `gorm:"column:id"`
+	RoleId       int       `gorm:"column:role_id"`
+	UserId       int       `gorm:"column:user_id"`
+	CreatedBy    int       `gorm:"column:created_by"`
+	CreatedOn    time.Time `gorm:"column:created_on"`
+	ModifiedBy   int       `gorm:"column:modified_by;DEFAULT:NULL"`
+	ModifiedOn   time.Time `gorm:"column:modified_on;DEFAULT:NULL"`
 	ModuleName   string    `gorm:"-"`
 	RouteName    string    `gorm:"-:migration;<-:false"`
 	DisplayName  string    `gorm:"-:migration;<-"`

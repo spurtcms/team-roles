@@ -7,48 +7,48 @@ import (
 )
 
 type tblmodule struct {
-	Id                  int `gorm:"primaryKey;auto_increment"`
-	ModuleName          string
-	IsActive            int
-	CreatedBy           int
-	CreatedOn           time.Time
-	CreatedDate         string `gorm:"-:migration;<-:false"`
-	DefaultModule       int
-	ParentId            int
-	IconPath            string
+	Id                  int                   `gorm:"column:id"`
+	ModuleName          string                `gorm:"column:module_name"`
+	IsActive            int                   `gorm:"column:is_active"`
+	CreatedBy           int                   `gorm:"column:created_by"`
+	CreatedOn           time.Time             `gorm:"column:created_on;DEFAULT:NULL"`
+	CreatedDate         string                `gorm:"-:migration;<-:false"`
+	DefaultModule       int                   `gorm:"column:default_module"`
+	ParentId            int                   `gorm:"column:parent_id"`
+	IconPath            string                `gorm:"column:icon_path"`
 	TblModulePermission []tblmodulepermission `gorm:"-:migration;<-:false; foreignKey:ModuleId"`
-	Description         string
-	OrderIndex          int
+	Description         string                `gorm:"column:description"`
+	OrderIndex          int                   `gorm:"column:order_index"`
 }
 
 type tblmodulepermission struct {
-	Id                   int `gorm:"primaryKey;auto_increment"`
-	RouteName            string
-	DisplayName          string
-	SlugName             string
-	Description          string
-	ModuleId             int
-	CreatedBy            int
-	CreatedOn            time.Time
-	CreatedDate          string    `gorm:"-"`
-	ModifiedBy           int       `gorm:"DEFAULT:NULL"`
-	ModifiedOn           time.Time `gorm:"DEFAULT:NULL"`
-	ModuleName           string    `gorm:"-:migration;<-:false"`
-	FullAccessPermission int
-	ParentId             int
-	AssignPermission     int
-	BreadcrumbName       string
+	Id                   int                 `gorm:"column:id"`
+	RouteName            string              `gorm:"column:route_name"`
+	DisplayName          string              `gorm:"column:display_name"`
+	SlugName             string              `gorm:"column:slug_name"`
+	Description          string              `gorm:"column:description"`
+	ModuleId             int                 `gorm:"column:module_id"`
+	CreatedBy            int                 `gorm:"column:created_by"`
+	CreatedOn            time.Time           `gorm:"column:created_on;DEFAULT:NULL"`
+	CreatedDate          string              `gorm:"-"`
+	ModifiedBy           int                 `gorm:"DEFAULT:NULL"`
+	ModifiedOn           time.Time           `gorm:"column:modified_by;DEFAULT:NULL"`
+	ModuleName           string              `gorm:"-:migration;<-:false"`
+	FullAccessPermission int                 `gorm:"column:full_access_permission"`
+	ParentId             int                 `gorm:"column:parent_id"`
+	AssignPermission     int                 `gorm:"column:assign_permission"`
+	BreadcrumbName       string              `gorm:"column:breadcrumb_name"`
 	TblRolePermission    []TblRolePermission `gorm:"-:migration;<-:false; foreignKey:PermissionId"`
-	OrderIndex           int
+	OrderIndex           int                 `gorm:"column:order_index"`
 }
 
 type tblrolepermission struct {
-	Id           int `gorm:"primaryKey;auto_increment"`
-	RoleId       int
-	PermissionId int
-	CreatedBy    int
-	CreatedOn    time.Time
-	CreatedDate  string `gorm:"-:migration;<-:false"`
+	Id           int       `gorm:"column:id"`
+	RoleId       int       `gorm:"column:role_id"`
+	PermissionId int       `gorm:"column:permission_id"`
+	CreatedBy    int       `gorm:"column:created_by"`
+	CreatedOn    time.Time `gorm:"column:created_on;DEFAULT:NULL"`
+	CreatedDate  string    `gorm:"-:migration;<-:false"`
 }
 
 type tbluser struct {
@@ -343,6 +343,16 @@ func (as ModelStruct) CheckModulePemissionExists(moduleid int, permissions Actio
 func (as ModelStruct) GetIdByRouteName(id string, DB *gorm.DB) (tblmodper TblModulePermission, err error) {
 
 	if err := DB.Table("tbl_module_permissions").Where("route_name=?", "/channel/entrylist/"+id).First(&tblmodper).Error; err != nil {
+
+		return tblmodper, err
+	}
+
+	return tblmodper, nil
+}
+
+func (as ModelStruct) DeleteModulePermissioninEntries(id string, DB *gorm.DB) (tblmodper TblModulePermission, err error) {
+
+	if err := DB.Where("route_name=?", "/channel/entrylist/"+id).Delete(&tblmodper).Error; err != nil {
 
 		return tblmodper, err
 	}
