@@ -3,6 +3,8 @@ package teamroles
 import (
 	"log"
 	"time"
+
+	"gorm.io/gorm"
 )
 
 type Action string
@@ -89,16 +91,11 @@ func (permission PermissionConfig) IsGranted(modulename string, permisison Actio
 }
 
 // create permission
-func (permission PermissionConfig) CreatePermission(Perm MultiPermissin) error {
+func (permission *PermissionConfig) CreatePermission(Perm MultiPermissin) error {
 
-	if permission.AuthEnable && !permission.Authenticate.AuthFlg {
+	if autherr := AuthandPermission(permission); autherr != nil {
 
-		return ErrorAuth
-	}
-
-	if permission.PermissionEnable && !permission.Authenticate.PermissionFlg {
-
-		return ErrorPermission
+		return autherr
 	}
 
 	var createrolepermission []tblrolepermission
@@ -130,26 +127,54 @@ func (permission PermissionConfig) CreatePermission(Perm MultiPermissin) error {
 	return err
 }
 
+// create permission
+func (permission *PermissionConfig) CreatePermission1(permissions CreatePermissions) error {
+
+	if autherr := AuthandPermission(permission); autherr != nil {
+
+		return autherr
+	}
+
+	module, err := AS.CheckModuleExists(permissions.ModuleName, permission.DB)
+
+	if err == gorm.ErrRecordNotFound {
+
+		return ErrorModuleNotFound
+	}
+
+	modper, moderr := AS.CheckModulePemissionExists(module.Id, permissions.Permission, permission.DB)
+
+	if moderr == gorm.ErrRecordNotFound {
+
+		return ErrorModulePermissionNotFound
+	}
+
+	var createmod tblrolepermission
+
+	createmod.PermissionId = modper.Id
+
+	createmod.RoleId = permissions.RoleId
+
+	createmod.CreatedBy = permissions.CreatedBy
+
+	createmod.CreatedOn, _ = time.Parse("2006-01-02 15:04:05", time.Now().UTC().Format("2006-01-02 15:04:05"))
+
+	return nil
+}
+
 // update permission
-func (permission PermissionConfig) CreateUpdatePermission(Perm MultiPermissin) error {
+func (permission *PermissionConfig) CreateUpdatePermission(Perm MultiPermissin) error {
 
-	if permission.AuthEnable && !permission.Authenticate.AuthFlg {
+	if autherr := AuthandPermission(permission); autherr != nil {
 
-		return ErrorAuth
+		return autherr
 	}
 
-	if permission.PermissionEnable && !permission.Authenticate.PermissionFlg {
-
-		return ErrorPermission
-	}
-
-	var checknotexist []tblrolepermission
-
-	cnerr := AS.CheckPermissionIdNotExist(&checknotexist, Perm.RoleId, Perm.Ids, permission.DB)
+	checknotexist, cnerr := AS.CheckPermissionIdNotExist(Perm.RoleId, Perm.Ids, permission.DB)
 
 	if len(Perm.Ids) == 0 {
 
-		AS.Deleterolepermission(&tblrolepermission{}, Perm.RoleId, permission.DB)
+		AS.Deleterolepermission(Perm.RoleId, permission.DB)
 	}
 
 	if cnerr != nil {
@@ -158,12 +183,10 @@ func (permission PermissionConfig) CreateUpdatePermission(Perm MultiPermissin) e
 
 	} else if len(checknotexist) != 0 {
 
-		AS.DeleteRolePermissionById(&checknotexist, Perm.RoleId, permission.DB)
+		AS.DeleteRolePermissionById(Perm.RoleId, permission.DB)
 	}
 
-	var checkexist []TblRolePermission
-
-	cerr := AS.CheckPermissionIdExist(&checkexist, Perm.RoleId, Perm.Ids, permission.DB)
+	checkexist, cerr := AS.CheckPermissionIdExist(Perm.RoleId, Perm.Ids, permission.DB)
 
 	if cerr != nil {
 
@@ -211,35 +234,102 @@ func (permission PermissionConfig) CreateUpdatePermission(Perm MultiPermissin) e
 
 }
 
+func (permission *PermissionConfig) PermissionList() (menu []MenuMod, err error) {
+
+	if autherr := AuthandPermission(permission); autherr != nil {
+
+		return []MenuMod{}, autherr
+	}
+
+	parentModules, err := AS.GetAllParentModule(permission.DB) //get parent default main module only
+
+	var Final []MenuMod
+
+	for _, val := range parentModules {
+
+		var fin MenuMod
+
+		fin.Id = val.Id
+
+		fin.ModuleName = val.ModuleName
+
+		fin.IconPath = val.IconPath
+
+		subModules, _ := AS.GetAllSubModule(val.Id, permission.DB)
+
+		var Suball []SubModule
+
+		for _, tab := range subModules {
+
+			if tab.ParentId == val.Id {
+
+				var sub SubModule
+
+				sub.Id = tab.Id
+
+				sub.ModuleName = tab.ModuleName
+
+				sub.IconPath = tab.IconPath
+
+				rout, _ := AS.GetModulePermissions(tab.Id, []int{}, permission.DB)
+
+				var Url []URL
+
+				for _, url := range rout {
+
+					var urll URL
+
+					urll.Id = url.Id
+
+					urll.DisplayName = url.DisplayName
+
+					urll.RouteName = url.RouteName
+
+					Url = append(Url, urll)
+
+				}
+
+				sub.Routes = Url
+
+				Suball = append(Suball, sub)
+
+			}
+
+		}
+		if len(Suball) > 0 && len(Suball[0].Routes) > 0 {
+
+			fin.Route = Suball[0].Routes[0].RouteName
+		}
+
+		fin.SubModule = Suball
+
+		Final = append(Final, fin)
+	}
+
+	return Final, nil
+
+}
+
 // permission List
-func (permission PermissionConfig) PermissionListRoleId(limit, offset, roleid int, filter Filter) (Module []tblmodule, count int64, err error) {
+func (permission *PermissionConfig) PermissionListRoleId(limit, offset, roleid int, filter Filter) (Module []tblmodule, count int64, err error) {
 
-	if permission.AuthEnable && !permission.Authenticate.AuthFlg {
+	if autherr := AuthandPermission(permission); autherr != nil {
 
-		return []tblmodule{}, 0, ErrorAuth
+		return []tblmodule{}, 0, autherr
 	}
-
-	if permission.PermissionEnable && !permission.Authenticate.PermissionFlg {
-
-		return []tblmodule{}, 0, ErrorPermission
-	}
-
-	var allmodule []tblmodule
 
 	var allmodules []tblmodule
 
 	var parentid []int //all parentid
 
-	AS.GetAllParentModules1(&allmodule, permission.DB)
+	allmodule, err := AS.GetAllParentModules1(permission.DB)
 
 	for _, val := range allmodule {
 
 		parentid = append(parentid, val.Id)
 	}
 
-	var submod []tblmodule
-
-	AS.GetAllSubModules(&submod, parentid, permission.DB)
+	submod, err := AS.GetAllSubModules(parentid, permission.DB)
 
 	for _, val := range allmodule {
 
@@ -421,32 +511,23 @@ func (permission PermissionConfig) PermissionListRoleId(limit, offset, roleid in
 
 	}
 
-	var allmodul []tblmodule
-
-	Totalcount := AS.GetAllModules(&allmodul, 0, 0, roleid, filter, permission.DB)
+	_, Totalcount := AS.GetAllModules(0, 0, roleid, filter, permission.DB)
 
 	return allmodules, Totalcount, nil
 
 }
 
 // permission List
-func (permission PermissionConfig) GetPermissionDetailsById(roleid int) (rolepermissionid []int, err error) {
+func (permission *PermissionConfig) GetPermissionDetailsById(roleid int) (rolepermissionid []int, err error) {
 
-	if permission.AuthEnable && !permission.Authenticate.AuthFlg {
+	if autherr := AuthandPermission(permission); autherr != nil {
 
-		return []int{}, ErrorAuth
-	}
-
-	if permission.PermissionEnable && !permission.Authenticate.PermissionFlg {
-
-		return []int{}, ErrorPermission
+		return []int{}, autherr
 	}
 
 	var permissionid []int
 
-	var roleper []tblrolepermission
-
-	AS.GetPermissionId(&roleper, roleid, permission.DB)
+	roleper, err := AS.GetPermissionId(roleid, permission.DB)
 
 	for _, val := range roleper {
 

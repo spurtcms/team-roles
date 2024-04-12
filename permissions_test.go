@@ -35,7 +35,7 @@ func TestCreatePermissions(t *testing.T) {
 
 	permis := MultiPermissin{
 		RoleId:    2,
-		Ids:       []int{1, 2}, //permission module primary key
+		Ids:       []int{1, 2}, //permission_module primary key
 		CreatedBy: 1,
 	}
 

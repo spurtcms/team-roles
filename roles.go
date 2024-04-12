@@ -1,8 +1,6 @@
 package teamroles
 
 import (
-	"errors"
-	"fmt"
 	"strings"
 	"time"
 )
@@ -24,18 +22,12 @@ func RoleSetup(config Config) *PermissionConfig {
 var AS ModelStruct
 
 // create role
-func (RoleConf PermissionConfig) RoleList(rolelist rolelist) (roles []tblrole, rolecount int64, err error) {
+func (RoleConf *PermissionConfig) RoleList(rolelist rolelist) (roles []tblrole, rolecount int64, err error) {
 
-	fmt.Println("auth", RoleConf.Authenticate)
+	//check if auth or permission enabled
+	if autherr := AuthandPermission(RoleConf); autherr != nil {
 
-	if RoleConf.AuthEnable && !RoleConf.Authenticate.AuthFlg {
-
-		return []tblrole{}, 0, ErrorAuth
-	}	
-
-	if RoleConf.PermissionEnable && !RoleConf.Authenticate.PermissionFlg {
-
-		return []tblrole{}, 0, ErrorPermission
+		return []tblrole{}, 0, autherr
 	}
 
 	role, _, _ := AS.GetAllRoles(rolelist.Limit, rolelist.Offset, rolelist.filter, rolelist.GetAllData, RoleConf.DB)
@@ -47,16 +39,12 @@ func (RoleConf PermissionConfig) RoleList(rolelist rolelist) (roles []tblrole, r
 }
 
 // get role by id
-func (RoleConf PermissionConfig) GetRoleById(roleid int) (tblrol tblrole, err error) {
+func (RoleConf *PermissionConfig) GetRoleById(roleid int) (tblrol tblrole, err error) {
 
-	if RoleConf.AuthEnable && !RoleConf.Authenticate.AuthFlg {
+	//check if auth or permission enabled
+	if autherr := AuthandPermission(RoleConf); autherr != nil {
 
-		return tblrole{}, ErrorAuth
-	}
-
-	if RoleConf.PermissionEnable && !RoleConf.Authenticate.PermissionFlg {
-
-		return tblrole{}, ErrorPermission
+		return tblrole{}, autherr
 	}
 
 	var AS ModelStruct
@@ -73,21 +61,16 @@ func (RoleConf PermissionConfig) GetRoleById(roleid int) (tblrol tblrole, err er
 }
 
 // create role
-func (RoleConf PermissionConfig) CreateRole(rolec RoleCreation) (tblrole, error) {
+func (RoleConf *PermissionConfig) CreateRole(rolec RoleCreation) (tblrole, error) {
 
-	if RoleConf.AuthEnable && !RoleConf.Authenticate.AuthFlg {
+	if autherr := AuthandPermission(RoleConf); autherr != nil {
 
-		return tblrole{}, ErrorAuth
-	}
-
-	if RoleConf.PermissionEnable && !RoleConf.Authenticate.PermissionFlg {
-
-		return tblrole{}, ErrorPermission
+		return tblrole{}, autherr
 	}
 
 	if rolec.Name == "" {
 
-		return tblrole{}, errors.New("can't store role name is empty")
+		return tblrole{}, ErrorRoleNameEmpty
 	}
 
 	var role tblrole
@@ -114,21 +97,17 @@ func (RoleConf PermissionConfig) CreateRole(rolec RoleCreation) (tblrole, error)
 }
 
 // update role
-func (RoleConf PermissionConfig) UpdateRole(rolec RoleCreation, roleid int) (updaterole tblrole, err error) {
+func (RoleConf *PermissionConfig) UpdateRole(rolec RoleCreation, roleid int) (updaterole tblrole, err error) {
 
-	if RoleConf.AuthEnable && !RoleConf.Authenticate.AuthFlg {
+	//check if auth or permission enabled
+	if autherr := AuthandPermission(RoleConf); autherr != nil {
 
-		return tblrole{}, ErrorAuth
-	}
-
-	if RoleConf.PermissionEnable && !RoleConf.Authenticate.PermissionFlg {
-
-		return tblrole{}, ErrorPermission
+		return tblrole{}, autherr
 	}
 
 	if rolec.Name == "" {
 
-		return tblrole{}, errors.New("empty value")
+		return tblrole{}, ErrorRoleNameEmpty
 	}
 
 	var role tblrole
@@ -155,30 +134,24 @@ func (RoleConf PermissionConfig) UpdateRole(rolec RoleCreation, roleid int) (upd
 }
 
 // delete role
-func (RoleConf PermissionConfig) DeleteRole(roleid int) (bool, error) {
+func (RoleConf *PermissionConfig) DeleteRole(roleid int) (bool, error) {
 
-	if RoleConf.AuthEnable && !RoleConf.Authenticate.AuthFlg {
+	//check if auth or permission enabled
+	if autherr := AuthandPermission(RoleConf); autherr != nil {
 
-		return false, ErrorAuth
-	}
-
-	if RoleConf.PermissionEnable && !RoleConf.Authenticate.PermissionFlg {
-
-		return false, ErrorPermission
+		return false, autherr
 	}
 
 	if roleid <= 0 {
 
-		return false, errors.New("invalid roleid cannot delete")
+		return false, ErrorInvalidroleid
 	}
 
 	var role tblrole
 
 	err1 := AS.RoleDelete(&role, roleid, RoleConf.DB)
 
-	var permissions []tblrolepermission
-
-	AS.DeleteRolePermissionById(&permissions, roleid, RoleConf.DB)
+	AS.DeleteRolePermissionById(roleid, RoleConf.DB)
 
 	if err1 != nil {
 
@@ -190,16 +163,12 @@ func (RoleConf PermissionConfig) DeleteRole(roleid int) (bool, error) {
 }
 
 /*Check Role Already Exists*/
-func (RoleConf PermissionConfig) CheckRoleAlreadyExists(roleid int, rolename string) (bool, error) {
+func (RoleConf *PermissionConfig) CheckRoleAlreadyExists(roleid int, rolename string) (bool, error) {
 
-	if RoleConf.AuthEnable && !RoleConf.Authenticate.AuthFlg {
+	//check if auth or permission enabled
+	if autherr := AuthandPermission(RoleConf); autherr != nil {
 
-		return false, ErrorAuth
-	}
-
-	if RoleConf.PermissionEnable && !RoleConf.Authenticate.PermissionFlg {
-
-		return false, ErrorPermission
+		return false, autherr
 	}
 
 	var role tblrole

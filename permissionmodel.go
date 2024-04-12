@@ -104,9 +104,43 @@ type MultiPermissin struct {
 	// Permissions []Permission
 }
 
+type CreatePermissions struct {
+	RoleId     int
+	ModuleName string
+	Permission Action
+	CreatedBy  int
+}
+
 type LoginCheck struct {
 	Username string
 	Password string
+}
+
+type SubModule struct {
+	Id         int
+	ModuleName string
+	IconPath   string
+	Routes     []URL
+	// FullAccessPermission bool
+	Action bool
+}
+
+type URL struct {
+	Id          int
+	DisplayName string
+	RouteName   string
+}
+
+type MenuMod struct {
+	Id         int
+	ModuleName string
+	IconPath   string
+	Routes     []URL // this is for single menu multiple permissions arr
+	HrefRoute  URL
+	Route      string      //this is for a tag href route
+	SubModule  []SubModule // this is for submodules
+	// FullAccessPermission bool
+	EmptyCheck bool //this is flg for mainmenu hide if submodule is empty
 }
 
 /*bulk creation*/
@@ -121,73 +155,73 @@ func (as ModelStruct) CreateRolePermission(roleper *[]tblrolepermission, DB *gor
 	return nil
 }
 
-func (as ModelStruct) CheckPermissionIdNotExist(roleperm *[]tblrolepermission, roleid int, permissionid []int, DB *gorm.DB) error {
+func (as ModelStruct) CheckPermissionIdNotExist(roleid int, permissionid []int, DB *gorm.DB) (roleperm []tblrolepermission, err error) {
 
 	if err := DB.Table("tbl_role_permissions").Where("role_id=? and permission_id not in(?)", roleid, permissionid).Find(&roleperm).Error; err != nil {
 
-		return err
+		return roleperm, err
 
 	}
-	return nil
+	return roleperm, nil
 }
 
 /*Delete Role Permission by id*/
-func (as ModelStruct) Deleterolepermission(TblRolePermission *tblrolepermission, id int, DB *gorm.DB) error {
+func (as ModelStruct) Deleterolepermission(id int, DB *gorm.DB) (TblRolePermission tblrolepermission, err error) {
 
 	if err := DB.Where("permission_id=?", id).Delete(&TblRolePermission).Error; err != nil {
 
-		return err
+		return TblRolePermission, err
 	}
 
-	return nil
+	return TblRolePermission, nil
 }
 
-func (as ModelStruct) DeleteRolePermissionById(roleper *[]tblrolepermission, roleid int, DB *gorm.DB) error {
+func (as ModelStruct) DeleteRolePermissionById(roleid int, DB *gorm.DB) (roleper []tblrolepermission, err error) {
 
 	if err := DB.Where("role_id=?", roleid).Delete(&roleper).Error; err != nil {
 
-		return err
+		return roleper, err
 
 	}
-	return nil
+	return roleper, nil
 }
 
-func (as ModelStruct) CheckPermissionIdExist(roleperm *[]TblRolePermission, roleid int, permissionid []int, DB *gorm.DB) error {
+func (as ModelStruct) CheckPermissionIdExist(roleid int, permissionid []int, DB *gorm.DB) (roleperm []TblRolePermission, err error) {
 
 	if err := DB.Table("tbl_role_permissions").Where("role_id=? and permission_id in(?)", roleid, permissionid).Find(&roleperm).Error; err != nil {
 
-		return err
+		return roleperm, err
 
 	}
-	return nil
+	return roleperm, nil
 }
 
 /**/
-func (as ModelStruct) GetAllParentModules1(mod *[]tblmodule, DB *gorm.DB) (err error) {
+func (as ModelStruct) GetAllParentModules1(DB *gorm.DB) (mod []tblmodule, err error) {
 
 	if err := DB.Model(TblModule{}).Where("parent_id=0").Find(&mod).Error; err != nil {
 
-		return err
+		return mod, err
 	}
 
-	return nil
+	return mod, nil
 }
 
 /**/
-func (as ModelStruct) GetAllSubModules(mod *[]tblmodule, ids []int, DB *gorm.DB) (err error) {
+func (as ModelStruct) GetAllSubModules(ids []int, DB *gorm.DB) (mod []tblmodule, err error) {
 
 	if err := DB.Model(TblModule{}).Where("(tbl_modules.parent_id in (?) or id in(?)) and tbl_modules.assign_permission=1", ids, ids).Order("order_index").Preload("TblModulePermission", func(db *gorm.DB) *gorm.DB {
 		return db.Where("assign_permission =0").Order("order_index asc")
 	}).Find(&mod).Error; err != nil {
 
-		return err
+		return mod, err
 	}
 
-	return nil
+	return mod, nil
 }
 
 /*This is for assign permission*/
-func (as ModelStruct) GetAllModules(mod *[]tblmodule, limit, offset, id int, filter Filter, DB *gorm.DB) (count int64) {
+func (as ModelStruct) GetAllModules(limit, offset, id int, filter Filter, DB *gorm.DB) (mod []tblmodule, count int64) {
 
 	query := DB.Table("tbl_modules").Where("parent_id!=0 or assign_permission=1").Preload("TblModulePermission", func(db *gorm.DB) *gorm.DB {
 		return db.Where("assign_permission =0")
@@ -208,19 +242,110 @@ func (as ModelStruct) GetAllModules(mod *[]tblmodule, limit, offset, id int, fil
 
 		query.Find(&mod).Count(&count)
 
-		return count
+		return mod, count
 	}
 
-	return 0
+	return mod, 0
 }
 
 /*Get PermissionId By RoleId*/
-func (as ModelStruct) GetPermissionId(perm *[]tblrolepermission, roleid int, DB *gorm.DB) error {
+func (as ModelStruct) GetPermissionId(roleid int, DB *gorm.DB) (perm []tblrolepermission, err error) {
 
 	if err := DB.Model(tblrolepermission{}).Where("role_id=?", roleid).Find(&perm).Error; err != nil {
 
-		return err
+		return perm, err
 	}
 
-	return nil
+	return perm, nil
+}
+
+func (as ModelStruct) GetAllSubModule(moduleid int, DB *gorm.DB) (modules []TblModule, err error) {
+
+	if err := DB.Table("tbl_modules").Where("parent_id = (?) and menu_type='tab'", moduleid).Order("tbl_modules.id asc").Find(&modules).
+		Error; err != nil {
+
+		return modules, err
+	}
+
+	return modules, nil
+}
+
+func (as ModelStruct) GetAllParentModule(DB *gorm.DB) (modules []TblModule, err error) {
+
+	if err := DB.Table("tbl_modules").Where("default_module = 0 and parent_id = 0").Order("tbl_modules.id asc").Find(&modules).
+		Error; err != nil {
+
+		return modules, err
+	}
+
+	return modules, nil
+}
+
+func (as ModelStruct) GetModulePermissions(modid int, ids []int, DB *gorm.DB) (permission []TblModulePermission, err error) {
+
+	query := DB.Table("tbl_module_permissions").Select("tbl_module_permissions.*,tbl_modules.module_name").Joins("inner join tbl_modules on tbl_modules.id = tbl_module_permissions.module_id").Order("tbl_modules.order_index asc,tbl_module_permissions.order_index asc")
+
+	if len(ids) > 0 {
+
+		query = query.Where("tbl_module_permissions.id in (?)", ids)
+
+	}
+
+	if modid != 0 && modid > -1 {
+
+		query = query.Where("module_id = (?)", modid)
+	}
+
+	query.Find(&permission)
+
+	if err := query.Error; err != nil {
+
+		return permission, err
+	}
+
+	return permission, nil
+}
+
+func (as ModelStruct) CheckModuleExists(modulename string, DB *gorm.DB) (tblmod tblmodule, err error) {
+
+	if qerr := DB.Model(TblModule{}).Where("module_name =? and parent_id != 0 ").First(tblmod).Error; err != nil {
+
+		return tblmodule{}, qerr
+	}
+
+	return tblmod, nil
+
+}
+
+func (as ModelStruct) CheckModulePemissionExists(moduleid int, permissions Action, DB *gorm.DB) (tblmod tblmodulepermission, err error) {
+
+	if permissions == CRUD {
+
+		if qerr := DB.Model(TblModule{}).Where("module_id =? and full_access_permission= 1  ", moduleid).First(tblmod).Error; qerr != nil {
+
+			return tblmodulepermission{}, qerr
+		}
+
+	} else {
+
+		if qerr := DB.Model(TblModule{}).Where("module_id =? and display_name = ?  ", moduleid, permissions).First(tblmod).Error; qerr != nil {
+
+			return tblmodulepermission{}, qerr
+		}
+
+	}
+
+	return tblmod, nil
+
+}
+
+/*Get Id by RouteName*/
+func (as ModelStruct) GetIdByRouteName(id string, DB *gorm.DB) (tblmodper TblModulePermission, err error) {
+
+	if err := DB.Table("tbl_module_permissions").Where("route_name=?", "/channel/entrylist/"+id).First(&tblmodper).Error; err != nil {
+
+		return tblmodper, err
+	}
+
+	return tblmodper, nil
 }
