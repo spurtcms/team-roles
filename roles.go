@@ -13,8 +13,6 @@ func RoleSetup(config Config) *PermissionConfig {
 	return &PermissionConfig{
 		AuthEnable:       config.AuthEnable,
 		PermissionEnable: config.PermissionEnable,
-		RoleId:           config.RoleId,
-		RoleName:         config.RoleName,
 		DB:               config.DB,
 		Authenticate:     config.Authenticate,
 	}

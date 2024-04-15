@@ -10,8 +10,6 @@ type Config struct {
 	AuthEnable       bool
 	PermissionEnable bool
 	Authenticate     *auth.Auth
-	RoleId           int
-	RoleName         string
 	DB               *gorm.DB
 }
 
@@ -19,8 +17,6 @@ type PermissionConfig struct {
 	AuthEnable       bool
 	PermissionEnable bool
 	Authenticate     *auth.Auth
-	RoleId           int
-	RoleName         string
 	DB               *gorm.DB
 	AuthFlg          bool
 	PermissionFlg    bool

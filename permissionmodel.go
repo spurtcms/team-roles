@@ -107,7 +107,7 @@ type MultiPermissin struct {
 type CreatePermissions struct {
 	RoleId     int
 	ModuleName string
-	Permission Action
+	Permission string
 	CreatedBy  int
 }
 
@@ -317,9 +317,9 @@ func (as ModelStruct) CheckModuleExists(modulename string, DB *gorm.DB) (tblmod 
 
 }
 
-func (as ModelStruct) CheckModulePemissionExists(moduleid int, permissions Action, DB *gorm.DB) (tblmod tblmodulepermission, err error) {
+func (as ModelStruct) CheckModulePemissionExists(moduleid int, permissions string, DB *gorm.DB) (tblmod tblmodulepermission, err error) {
 
-	if permissions == CRUD {
+	if permissions == "CRUD" {
 
 		if qerr := DB.Model(TblModule{}).Where("module_id =? and full_access_permission= 1  ", moduleid).First(tblmod).Error; qerr != nil {
 

@@ -3,8 +3,8 @@ package teamroles
 import "errors"
 
 var (
-	ErrorAuth                     = errors.New("auth enabled not initialised")
-	ErrorPermission               = errors.New("permissions enabled not initialised")
+	ErrorAuthentication           = errors.New("auth enabled not initialised")
+	ErrorAuthorization            = errors.New("permissions enabled not initialised")
 	Error500Status                = errors.New("internal server error")
 	Error403                      = errors.New("unauthorized")
 	Error404                      = errors.New("not found")
@@ -14,30 +14,16 @@ var (
 	ErrorInvalidroleid            = errors.New("invalid roleid cannot delete")
 )
 
-type Action string
-
-const ( 
-	Create Action = "Create"
-
-	Read Action = "View"
-
-	Update Action = "Update"
-
-	Delete Action = "Delete"
-
-	CRUD Action = "CRUD"
-)
-
 func AuthandPermission(permission *PermissionConfig) error {
 
 	if permission.AuthEnable && !permission.Authenticate.AuthFlg {
 
-		return ErrorAuth
+		return ErrorAuthentication
 	}
 
 	if permission.PermissionEnable && !permission.Authenticate.PermissionFlg {
 
-		return ErrorPermission
+		return ErrorAuthorization
 	}
 
 	return nil
