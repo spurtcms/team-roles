@@ -14,6 +14,18 @@ var (
 	ErrorInvalidroleid            = errors.New("invalid roleid cannot delete")
 )
 
+const (
+	Create Action = "Create"
+
+	Read Action = "View"
+
+	Update Action = "Update"
+
+	Delete Action = "Delete"
+
+	CRUD Action = "CRUD"
+)
+
 func AuthandPermission(permission *PermissionConfig) error {
 
 	if permission.AuthEnable && !permission.Authenticate.AuthFlg {

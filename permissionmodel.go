@@ -104,10 +104,12 @@ type MultiPermissin struct {
 	// Permissions []Permission
 }
 
+type Action string
+
 type CreatePermissions struct {
 	RoleId     int
 	ModuleName string
-	Permission string
+	Permission Action
 	CreatedBy  int
 }
 
@@ -317,7 +319,7 @@ func (as ModelStruct) CheckModuleExists(modulename string, DB *gorm.DB) (tblmod 
 
 }
 
-func (as ModelStruct) CheckModulePemissionExists(moduleid int, permissions string, DB *gorm.DB) (tblmod tblmodulepermission, err error) {
+func (as ModelStruct) CheckModulePemissionExists(moduleid int, permissions Action, DB *gorm.DB) (tblmod tblmodulepermission, err error) {
 
 	if permissions == "CRUD" {
 
@@ -358,4 +360,16 @@ func (as ModelStruct) DeleteModulePermissioninEntries(id string, DB *gorm.DB) (t
 	}
 
 	return tblmodper, nil
+}
+
+/*create json module permission*/
+func (as ModelStruct) CreateModulePermission(modpermission *TblModulePermission, DB *gorm.DB) (modper *TblModulePermission, err error) {
+
+	if err := DB.Model(TblModulePermission{}).Create(&modpermission).Error; err != nil {
+
+		return &TblModulePermission{}, err
+
+	}
+
+	return modpermission, nil
 }
