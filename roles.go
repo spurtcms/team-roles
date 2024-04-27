@@ -147,9 +147,7 @@ func (RoleConf *PermissionConfig) DeleteRole(roleid int) (bool, error) {
 		return false, ErrorInvalidroleid
 	}
 
-	var role tblrole
-
-	err1 := AS.RoleDelete(&role, roleid, RoleConf.DB)
+	err1 := AS.RoleDelete(roleid, RoleConf.DB)
 
 	AS.DeleteRolePermissionById(roleid, RoleConf.DB)
 
@@ -171,7 +169,7 @@ func (RoleConf *PermissionConfig) CheckRoleAlreadyExists(roleid int, rolename st
 		return false, autherr
 	}
 
-	var role tblrole
+	var role TblRole
 
 	err1 := AS.CheckRoleExists(&role, roleid, rolename, RoleConf.DB)
 

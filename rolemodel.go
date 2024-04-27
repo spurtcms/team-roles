@@ -85,7 +85,7 @@ func (as ModelStruct) GetAllRoles(limit, offset int, filter Filter, getalldata b
 /*Get role by id*/
 func (as ModelStruct) GetRoleById(id int, DB *gorm.DB) (role tblrole, err error) {
 
-	if err := DB.Model(tblrole{}).Where("id=?", id).First(&role).Error; err != nil {
+	if err := DB.Model(TblRole{}).Where("id=?", id).First(&role).Error; err != nil {
 
 		return tblrole{}, err
 
@@ -97,7 +97,7 @@ func (as ModelStruct) GetRoleById(id int, DB *gorm.DB) (role tblrole, err error)
 // Roels Insert
 func (as ModelStruct) RoleCreate(role *tblrole, DB *gorm.DB) error {
 
-	if err := DB.Model(tblrole{}).Create(role).Error; err != nil {
+	if err := DB.Model(TblRole{}).Create(role).Error; err != nil {
 
 		return err
 	}
@@ -108,7 +108,7 @@ func (as ModelStruct) RoleCreate(role *tblrole, DB *gorm.DB) error {
 /**/
 func (as ModelStruct) RoleUpdate(role *tblrole, DB *gorm.DB) error {
 
-	if err := DB.Model(tblrole{}).Where("id=?", role.Id).Updates(tblrole{Name: role.Name, Description: role.Description, Slug: role.Slug, IsActive: role.IsActive, IsDeleted: role.IsDeleted, ModifiedOn: role.ModifiedOn, ModifiedBy: role.ModifiedBy}).Error; err != nil {
+	if err := DB.Model(TblRole{}).Where("id=?", role.Id).Updates(tblrole{Name: role.Name, Description: role.Description, Slug: role.Slug, IsActive: role.IsActive, IsDeleted: role.IsDeleted, ModifiedOn: role.ModifiedOn, ModifiedBy: role.ModifiedBy}).Error; err != nil {
 
 		return err
 	}
@@ -117,9 +117,9 @@ func (as ModelStruct) RoleUpdate(role *tblrole, DB *gorm.DB) error {
 }
 
 // Delete the role data
-func (as ModelStruct) RoleDelete(role *tblrole, id int, DB *gorm.DB) error {
+func (as ModelStruct) RoleDelete(id int, DB *gorm.DB) error {
 
-	if err := DB.Model(tblrole{}).Where("id = ?", id).Update("is_deleted", 1).Error; err != nil {
+	if err := DB.Model(TblRole{}).Where("id = ?", id).Update("is_deleted", 1).Error; err != nil {
 
 		return err
 
@@ -129,15 +129,15 @@ func (as ModelStruct) RoleDelete(role *tblrole, id int, DB *gorm.DB) error {
 }
 
 /*Check role*/
-func (as ModelStruct) CheckRoleExists(role *tblrole, id int, name string, DB *gorm.DB) error {
+func (as ModelStruct) CheckRoleExists(role *TblRole, id int, name string, DB *gorm.DB) error {
 
 	if id == 0 {
-		if err := DB.Model(tblrole{}).Where("LOWER(TRIM(name))=LOWER(TRIM(?)) and is_deleted = 0 ", name).First(&role).Error; err != nil {
+		if err := DB.Model(TblRole{}).Where("LOWER(TRIM(name))=LOWER(TRIM(?)) and is_deleted = 0 ", name).First(&role).Error; err != nil {
 
 			return err
 		}
 	} else {
-		if err := DB.Model(tblrole{}).Where("LOWER(TRIM(name))=LOWER(TRIM(?)) and id not in(?) and is_deleted= 0 ", name, id).First(&role).Error; err != nil {
+		if err := DB.Model(TblRole{}).Where("LOWER(TRIM(name))=LOWER(TRIM(?)) and id not in(?) and is_deleted= 0 ", name, id).First(&role).Error; err != nil {
 
 			return err
 		}
