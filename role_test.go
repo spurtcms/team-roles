@@ -64,7 +64,7 @@ func TestRoleList(t *testing.T) {
 
 	if permisison {
 
-		rolelist, count, err := PermissionFlg.RoleList(rolelist{Limit: 10, Offset: 0})
+		rolelist, count, err := PermissionFlg.RoleList(Rolelist{Limit: 10, Offset: 0})
 
 		if err != nil {
 
@@ -192,7 +192,7 @@ func TestDeleteRole(t *testing.T) {
 
 	if permisison {
 
-		flg, err := PermissionFlg.DeleteRole(1)
+		flg, err := PermissionFlg.DeleteRole([]int{}, 1)
 
 		if err != nil {
 

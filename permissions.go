@@ -228,14 +228,14 @@ func (permission *PermissionConfig) PermissionList() (menu []MenuMod, err error)
 }
 
 // permission List
-func (permission *PermissionConfig) PermissionListRoleId(limit, offset, roleid int, filter Filter) (Module []tblmodule, count int64, err error) {
+func (permission *PermissionConfig) PermissionListRoleId(limit, offset, roleid int, filter Filter) (Module []Tblmodule, count int64, err error) {
 
 	if autherr := AuthandPermission(permission); autherr != nil {
 
-		return []tblmodule{}, 0, autherr
+		return []Tblmodule{}, 0, autherr
 	}
 
-	var allmodules []tblmodule
+	var allmodules []Tblmodule
 
 	var parentid []int //all parentid
 
@@ -252,7 +252,7 @@ func (permission *PermissionConfig) PermissionListRoleId(limit, offset, roleid i
 
 		if val.ModuleName == "Settings" {
 
-			var newmod tblmodule
+			var newmod Tblmodule
 
 			newmod.Id = val.Id
 
@@ -276,7 +276,7 @@ func (permission *PermissionConfig) PermissionListRoleId(limit, offset, roleid i
 
 						if getmod.ModuleId == sub.Id {
 
-							var modper tblmodulepermission
+							var modper TblModulePermission
 
 							modper.Id = getmod.Id
 
@@ -310,7 +310,7 @@ func (permission *PermissionConfig) PermissionListRoleId(limit, offset, roleid i
 
 		} else if val.ModuleName == "Spaces" {
 
-			var newmod tblmodule
+			var newmod Tblmodule
 
 			newmod.Id = val.Id
 
@@ -334,7 +334,7 @@ func (permission *PermissionConfig) PermissionListRoleId(limit, offset, roleid i
 
 						if getmod.ModuleId == val.Id {
 
-							var modper tblmodulepermission
+							var modper TblModulePermission
 
 							modper.Id = getmod.Id
 
@@ -372,7 +372,7 @@ func (permission *PermissionConfig) PermissionListRoleId(limit, offset, roleid i
 
 				if sub.ParentId == val.Id {
 
-					var newmod tblmodule
+					var newmod Tblmodule
 
 					newmod.Id = sub.Id
 
@@ -392,7 +392,7 @@ func (permission *PermissionConfig) PermissionListRoleId(limit, offset, roleid i
 
 						if getmod.ModuleId == sub.Id {
 
-							var modper tblmodulepermission
+							var modper TblModulePermission
 
 							modper.Id = getmod.Id
 

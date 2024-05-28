@@ -6,7 +6,7 @@ import (
 	"gorm.io/gorm"
 )
 
-type tblmodule struct {
+type Tblmodule struct {
 	Id                  int                   `gorm:"column:id"`
 	ModuleName          string                `gorm:"column:module_name"`
 	IsActive            int                   `gorm:"column:is_active"`
@@ -16,12 +16,12 @@ type tblmodule struct {
 	DefaultModule       int                   `gorm:"column:default_module"`
 	ParentId            int                   `gorm:"column:parent_id"`
 	IconPath            string                `gorm:"column:icon_path"`
-	TblModulePermission []tblmodulepermission `gorm:"-:migration;<-:false; foreignKey:ModuleId"`
+	TblModulePermission []TblModulePermission `gorm:"-:migration;<-:false; foreignKey:ModuleId"`
 	Description         string                `gorm:"column:description"`
 	OrderIndex          int                   `gorm:"column:order_index"`
 }
 
-type tblmodulepermission struct {
+type TblModulePermission struct {
 	Id                   int                 `gorm:"column:id"`
 	RouteName            string              `gorm:"column:route_name"`
 	DisplayName          string              `gorm:"column:display_name"`
@@ -30,7 +30,7 @@ type tblmodulepermission struct {
 	ModuleId             int                 `gorm:"column:module_id"`
 	CreatedBy            int                 `gorm:"column:created_by"`
 	CreatedOn            time.Time           `gorm:"column:created_on;DEFAULT:NULL"`
-	CreatedDate          string              `gorm:"-"`
+	CreatedDate          string              `gorm:"-:migration"`
 	ModifiedBy           int                 `gorm:"DEFAULT:NULL"`
 	ModifiedOn           time.Time           `gorm:"column:modified_by;DEFAULT:NULL"`
 	ModuleName           string              `gorm:"-:migration;<-:false"`
@@ -199,7 +199,7 @@ func (as ModelStruct) CheckPermissionIdExist(roleid int, permissionid []int, DB 
 }
 
 /**/
-func (as ModelStruct) GetAllParentModules1(DB *gorm.DB) (mod []tblmodule, err error) {
+func (as ModelStruct) GetAllParentModules1(DB *gorm.DB) (mod []Tblmodule, err error) {
 
 	if err := DB.Model(TblModule{}).Where("parent_id=0").Find(&mod).Error; err != nil {
 
@@ -210,7 +210,7 @@ func (as ModelStruct) GetAllParentModules1(DB *gorm.DB) (mod []tblmodule, err er
 }
 
 /**/
-func (as ModelStruct) GetAllSubModules(ids []int, DB *gorm.DB) (mod []tblmodule, err error) {
+func (as ModelStruct) GetAllSubModules(ids []int, DB *gorm.DB) (mod []Tblmodule, err error) {
 
 	if err := DB.Model(TblModule{}).Where("(tbl_modules.parent_id in (?) or id in(?)) and tbl_modules.assign_permission=1", ids, ids).Order("order_index").Preload("TblModulePermission", func(db *gorm.DB) *gorm.DB {
 		return db.Where("assign_permission =0").Order("order_index asc")
@@ -223,7 +223,7 @@ func (as ModelStruct) GetAllSubModules(ids []int, DB *gorm.DB) (mod []tblmodule,
 }
 
 /*This is for assign permission*/
-func (as ModelStruct) GetAllModules(limit, offset, id int, filter Filter, DB *gorm.DB) (mod []tblmodule, count int64) {
+func (as ModelStruct) GetAllModules(limit, offset, id int, filter Filter, DB *gorm.DB) (mod []Tblmodule, count int64) {
 
 	query := DB.Table("tbl_modules").Where("parent_id!=0 or assign_permission=1").Preload("TblModulePermission", func(db *gorm.DB) *gorm.DB {
 		return db.Where("assign_permission =0")
@@ -308,31 +308,31 @@ func (as ModelStruct) GetModulePermissions(modid int, ids []int, DB *gorm.DB) (p
 	return permission, nil
 }
 
-func (as ModelStruct) CheckModuleExists(modulename string, DB *gorm.DB) (tblmod tblmodule, err error) {
+func (as ModelStruct) CheckModuleExists(modulename string, DB *gorm.DB) (tblmod Tblmodule, err error) {
 
 	if qerr := DB.Model(TblModule{}).Where("module_name =? and parent_id != 0 ").First(tblmod).Error; err != nil {
 
-		return tblmodule{}, qerr
+		return Tblmodule{}, qerr
 	}
 
 	return tblmod, nil
 
 }
 
-func (as ModelStruct) CheckModulePemissionExists(moduleid int, permissions Action, DB *gorm.DB) (tblmod tblmodulepermission, err error) {
+func (as ModelStruct) CheckModulePemissionExists(moduleid int, permissions Action, DB *gorm.DB) (tblmod TblModulePermission, err error) {
 
 	if permissions == "CRUD" {
 
 		if qerr := DB.Model(TblModule{}).Where("module_id =? and full_access_permission= 1  ", moduleid).First(tblmod).Error; qerr != nil {
 
-			return tblmodulepermission{}, qerr
+			return TblModulePermission{}, qerr
 		}
 
 	} else {
 
 		if qerr := DB.Model(TblModule{}).Where("module_id =? and display_name = ?  ", moduleid, permissions).First(tblmod).Error; qerr != nil {
 
-			return tblmodulepermission{}, qerr
+			return TblModulePermission{}, qerr
 		}
 
 	}

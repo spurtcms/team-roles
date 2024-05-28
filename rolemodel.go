@@ -12,7 +12,7 @@ type RoleCreation struct {
 	CreatedBy   int
 }
 
-type tblrole struct {
+type Tblrole struct {
 	Id          int       `gorm:"column:id"`
 	Name        string    `gorm:"column:name"`
 	Description string    `gorm:"column:description"`
@@ -43,7 +43,7 @@ type tblroleuser struct {
 	PermissionId int       `gorm:"-"`
 }
 
-type rolelist struct {
+type Rolelist struct {
 	Limit      int
 	Offset     int
 	filter     Filter
@@ -53,7 +53,7 @@ type rolelist struct {
 type ModelStruct struct{} //Just Group the all model using this struct
 
 // Get all roles list with limit and offset
-func (as ModelStruct) GetAllRoles(limit, offset int, filter Filter, getalldata bool, DB *gorm.DB) (role []tblrole, rolecount int64, err error) {
+func (as ModelStruct) GetAllRoles(limit, offset int, filter Filter, getalldata bool, DB *gorm.DB) (role []Tblrole, rolecount int64, err error) {
 
 	query := DB.Table("tbl_roles").Where("is_deleted = 0").Order("id desc")
 
@@ -79,15 +79,15 @@ func (as ModelStruct) GetAllRoles(limit, offset int, filter Filter, getalldata b
 		return role, rolecount, nil
 	}
 
-	return []tblrole{}, 0, nil
+	return []Tblrole{}, 0, nil
 }
 
 /*Get role by id*/
-func (as ModelStruct) GetRoleById(id int, DB *gorm.DB) (role tblrole, err error) {
+func (as ModelStruct) GetRoleById(id int, DB *gorm.DB) (role Tblrole, err error) {
 
 	if err := DB.Model(TblRole{}).Where("id=?", id).First(&role).Error; err != nil {
 
-		return tblrole{}, err
+		return Tblrole{}, err
 
 	}
 
@@ -95,7 +95,7 @@ func (as ModelStruct) GetRoleById(id int, DB *gorm.DB) (role tblrole, err error)
 }
 
 // Roels Insert
-func (as ModelStruct) RoleCreate(role *tblrole, DB *gorm.DB) error {
+func (as ModelStruct) RoleCreate(role *Tblrole, DB *gorm.DB) error {
 
 	if err := DB.Model(TblRole{}).Create(role).Error; err != nil {
 
@@ -106,9 +106,9 @@ func (as ModelStruct) RoleCreate(role *tblrole, DB *gorm.DB) error {
 }
 
 /**/
-func (as ModelStruct) RoleUpdate(role *tblrole, DB *gorm.DB) error {
+func (as ModelStruct) RoleUpdate(role *Tblrole, DB *gorm.DB) error {
 
-	if err := DB.Model(TblRole{}).Where("id=?", role.Id).Updates(tblrole{Name: role.Name, Description: role.Description, Slug: role.Slug, IsActive: role.IsActive, IsDeleted: role.IsDeleted, ModifiedOn: role.ModifiedOn, ModifiedBy: role.ModifiedBy}).Error; err != nil {
+	if err := DB.Model(TblRole{}).Where("id=?", role.Id).Updates(Tblrole{Name: role.Name, Description: role.Description, Slug: role.Slug, IsActive: role.IsActive, IsDeleted: role.IsDeleted, ModifiedOn: role.ModifiedOn, ModifiedBy: role.ModifiedBy}).Error; err != nil {
 
 		return err
 	}
@@ -146,12 +146,82 @@ func (as ModelStruct) CheckRoleExists(role *TblRole, id int, name string, DB *go
 
 }
 
-func (as ModelStruct) GetRolesData(roles *[]tblrole, DB *gorm.DB) error {
+func (as ModelStruct) GetRolesData(roles *[]Tblrole, DB *gorm.DB) error {
 
 	if err := DB.Where("is_deleted=? and is_active=1", 0).Order("name").Find(&roles).Error; err != nil {
 
 		return err
 
+	}
+
+	return nil
+}
+
+// delete multiple roles
+func (as ModelStruct) MultiSelectRoleDelete(role *TblRole, ids []int, id int, DB *gorm.DB) error {
+
+	if id != 0 {
+
+		if err := DB.Model(TblRole{}).Where("id = ?", id).Update("is_deleted", 1).Error; err != nil {
+
+			return err
+
+		}
+
+	} else {
+
+		if err := DB.Model(TblRole{}).Where("id in (?)", ids).Update("is_deleted", 1).Error; err != nil {
+
+			return err
+
+		}
+
+	}
+	return nil
+
+}
+
+// delete multiple permission
+func (as ModelStruct) MultiSelectDeleteRolePermissionById(roleper *[]TblRolePermission, roleids []int, roleid int, DB *gorm.DB) error {
+
+	if roleid != 0 {
+
+		if err := DB.Where("role_id=?", roleid).Delete(&roleper).Error; err != nil {
+
+			return err
+
+		}
+		return nil
+
+	} else {
+
+		if err := DB.Where("role_id in (?)", roleids).Delete(&roleper).Error; err != nil {
+
+			return err
+
+		}
+	}
+	return nil
+}
+
+// update selected role status
+func (as ModelStruct) MultiSelectRoleIsActive(role *TblRole, id []int, val int, DB *gorm.DB) error {
+
+	if err := DB.Table("tbl_roles").Where("id in (?)", id).UpdateColumns(map[string]interface{}{"is_active": val, "modified_by": role.ModifiedBy, "modified_on": role.ModifiedOn}).Error; err != nil {
+
+		return err
+	}
+
+	return nil
+}
+
+
+/*update role status*/
+func (as ModelStruct) RoleIsActive(role *TblRole, id, val int, DB *gorm.DB) error {
+
+	if err := DB.Table("tbl_roles").Where("id=?", id).UpdateColumns(map[string]interface{}{"is_active": val, "modified_by": role.ModifiedBy, "modified_on": role.ModifiedOn}).Error; err != nil {
+
+		return err
 	}
 
 	return nil
