@@ -43,10 +43,23 @@ type tblroleuser struct {
 	PermissionId int       `gorm:"-"`
 }
 
+type TblRole struct {
+	Id          int       `gorm:"column:id"`
+	Name        string    `gorm:"column:name"`
+	Description string    `gorm:"column:description"`
+	Slug        string    `gorm:"column:slug"`
+	IsActive    int       `gorm:"column:is_active"`
+	IsDeleted   int       `gorm:"column:is_deleted"`
+	CreatedOn   time.Time `gorm:"column:created_on"`
+	CreatedBy   int       `gorm:"column:created_by"`
+	ModifiedOn  time.Time `gorm:"column:modified_on"`
+	ModifiedBy  int       `gorm:"column:modified_by"`
+}
+
 type Rolelist struct {
 	Limit      int
 	Offset     int
-	filter     Filter
+	Filter     Filter
 	GetAllData bool
 }
 
@@ -214,7 +227,6 @@ func (as ModelStruct) MultiSelectRoleIsActive(role *TblRole, id []int, val int, 
 
 	return nil
 }
-
 
 /*update role status*/
 func (as ModelStruct) RoleIsActive(role *TblRole, id, val int, DB *gorm.DB) error {

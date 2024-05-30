@@ -3,17 +3,20 @@ package teamroles
 import (
 	"strings"
 	"time"
+
+	"github.com/spurtcms/team-roles/migration"
 )
 
 // role&permission setup config
 func RoleSetup(config Config) *PermissionConfig {
 
-	AutoMigration(config.DB)
+	migration.AutoMigration(config.DB, config.DataBaseType)
 
 	return &PermissionConfig{
 		AuthEnable:       config.AuthEnable,
 		PermissionEnable: config.PermissionEnable,
 		DB:               config.DB,
+		DataBaseType:     config.DataBaseType,
 		Authenticate:     config.Authenticate,
 	}
 
@@ -30,9 +33,9 @@ func (RoleConf *PermissionConfig) RoleList(rolelist Rolelist) (roles []Tblrole, 
 		return []Tblrole{}, 0, autherr
 	}
 
-	role, _, _ := AS.GetAllRoles(rolelist.Limit, rolelist.Offset, rolelist.filter, rolelist.GetAllData, RoleConf.DB)
+	role, _, _ := AS.GetAllRoles(rolelist.Limit, rolelist.Offset, rolelist.Filter, rolelist.GetAllData, RoleConf.DB)
 
-	_, rolecounts, _ := AS.GetAllRoles(0, 0, rolelist.filter, rolelist.GetAllData, RoleConf.DB)
+	_, rolecounts, _ := AS.GetAllRoles(0, 0, rolelist.Filter, rolelist.GetAllData, RoleConf.DB)
 
 	return role, rolecounts, nil
 
@@ -148,7 +151,7 @@ func (RoleConf *PermissionConfig) DeleteRole(roleids []int, roleid int) (bool, e
 
 	var permissions []TblRolePermission
 
-	AS.MultiSelectDeleteRolePermissionById(&permissions, roleids, roleid,RoleConf.DB)
+	AS.MultiSelectDeleteRolePermissionById(&permissions, roleids, roleid, RoleConf.DB)
 
 	if err1 != nil {
 
@@ -184,7 +187,6 @@ func (RoleConf *PermissionConfig) CheckRoleAlreadyExists(roleid int, rolename st
 
 	return true, nil
 }
-
 
 // update selected role status
 func (RoleConf *PermissionConfig) MultiSelectRoleStatus(roleid []int, status int, userid int) (err error) {

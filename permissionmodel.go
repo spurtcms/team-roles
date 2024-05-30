@@ -21,6 +21,30 @@ type Tblmodule struct {
 	OrderIndex          int                   `gorm:"column:order_index"`
 }
 
+type TblModule struct {
+	Id               int       `gorm:"column:id"`
+	ModuleName       string    `gorm:"column:module_name"`
+	IsActive         int       `gorm:"column:is_active"`
+	DefaultModule    int       `gorm:"column:default_module"`
+	ParentId         int       `gorm:"column:parent_id"`
+	IconPath         string    `gorm:"column:icon_path"`
+	AssignPermission int       `gorm:"column:assign_permission"`
+	Description      string    `gorm:"column:description"`
+	OrderIndex       int       `gorm:"column:order_index"`
+	CreatedBy        int       `gorm:"column:created_by"`
+	CreatedOn        time.Time `gorm:"column:created_on"`
+	MenuType         string    `gorm:"column:menu_type"`
+	GroupFlg         int       `gorm:"column:group_flg"`
+}
+
+type TblRolePermission struct {
+	Id           int       `gorm:"primaryKey;auto_increment;type:serial"`
+	RoleId       int       `gorm:"type:integer"`
+	PermissionId int       `gorm:"type:integer"`
+	CreatedBy    int       `gorm:"type:integer"`
+	CreatedOn    time.Time `gorm:"type:timestamp without time zone"`
+}
+
 type TblModulePermission struct {
 	Id                   int                 `gorm:"column:id"`
 	RouteName            string              `gorm:"column:route_name"`

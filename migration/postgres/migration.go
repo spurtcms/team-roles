@@ -32,25 +32,26 @@ type TblModule struct {
 	CreatedBy        int       `gorm:"type:integer"`
 	CreatedOn        time.Time `gorm:"type:timestamp without time zone"`
 	MenuType         string    `gorm:"type:character varying"`
+	GroupFlg         int       `gorm:"type:integer"`
 }
 
-// type TblModulePermission struct {
-// 	Id                   int       `gorm:"primaryKey;type:serial"`
-// 	RouteName            string    `gorm:"type:character varying;unique"`
-// 	DisplayName          string    `gorm:"type:character varying"`
-// 	SlugName             string    `gorm:"type:character varying"`
-// 	Description          string    `gorm:"type:character varying"`
-// 	ModuleId             int       `gorm:"type:integer"`
-// 	FullAccessPermission int       `gorm:"type:integer"`
-// 	ParentId             int       `gorm:"type:integer"`
-// 	AssignPermission     int       `gorm:"type:integer"`
-// 	BreadcrumbName       string    `gorm:"type:character varying"`
-// 	OrderIndex           int       `gorm:"type:integer"`
-// 	CreatedBy            int       `gorm:"type:integer"`
-// 	CreatedOn            time.Time `gorm:"type:timestamp without time zone"`
-// 	ModifiedBy           int       `gorm:"DEFAULT:NULL"`
-// 	ModifiedOn           time.Time `gorm:"type:timestamp without time zone;DEFAULT:NULL"`
-// }
+type TblModulePermission struct {
+	Id                   int       `gorm:"primaryKey;type:serial"`
+	RouteName            string    `gorm:"type:character varying;unique"`
+	DisplayName          string    `gorm:"type:character varying"`
+	SlugName             string    `gorm:"type:character varying"`
+	Description          string    `gorm:"type:character varying"`
+	ModuleId             int       `gorm:"type:integer"`
+	FullAccessPermission int       `gorm:"type:integer"`
+	ParentId             int       `gorm:"type:integer"`
+	AssignPermission     int       `gorm:"type:integer"`
+	BreadcrumbName       string    `gorm:"type:character varying"`
+	OrderIndex           int       `gorm:"type:integer"`
+	CreatedBy            int       `gorm:"type:integer"`
+	CreatedOn            time.Time `gorm:"type:timestamp without time zone"`
+	ModifiedBy           int       `gorm:"DEFAULT:NULL"`
+	ModifiedOn           time.Time `gorm:"type:timestamp without time zone;DEFAULT:NULL"`
+}
 
 type TblRolePermission struct {
 	Id           int       `gorm:"primaryKey;auto_increment;type:serial"`
@@ -70,7 +71,7 @@ type TblRoleUser struct {
 	ModifiedOn time.Time `gorm:"type:timestamp without time zone;DEFAULT:NULL"`
 }
 
-func AutoMigration(db *gorm.DB) {
+func MigrationTables(db *gorm.DB) {
 
 	err := db.AutoMigrate(
 		&TblRole{},
