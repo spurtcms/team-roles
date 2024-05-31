@@ -72,7 +72,7 @@ func (as ModelStruct) GetAllRoles(limit, offset int, filter Filter, getalldata b
 
 	if filter.Keyword != "" {
 
-		query = query.Where("LOWER(TRIM(name)) ILIKE LOWER(TRIM(?))", "%"+filter.Keyword+"%")
+		query = query.Where("LOWER(TRIM(name)) LIKE LOWER(TRIM(?))", "%"+filter.Keyword+"%")
 	}
 
 	if getalldata {
@@ -85,14 +85,14 @@ func (as ModelStruct) GetAllRoles(limit, offset int, filter Filter, getalldata b
 
 		query.Limit(limit).Offset(offset).Find(&role)
 
-	} else {
-
-		query.Find(&role).Count(&rolecount)
-
 		return role, rolecount, nil
+
 	}
 
-	return []Tblrole{}, 0, nil
+	query.Find(&role).Count(&rolecount)
+
+	return role, rolecount, nil
+
 }
 
 /*Get role by id*/

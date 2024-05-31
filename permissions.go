@@ -1,7 +1,7 @@
 package teamroles
 
 import (
-	"log"
+	"fmt"
 	"time"
 
 	"gorm.io/gorm"
@@ -96,7 +96,7 @@ func (permission *PermissionConfig) CreateUpdatePermission(Perm MultiPermissin) 
 
 	if cnerr != nil {
 
-		log.Println(cnerr)
+		fmt.Println(cnerr)
 
 	} else if len(checknotexist) != 0 {
 
@@ -107,7 +107,7 @@ func (permission *PermissionConfig) CreateUpdatePermission(Perm MultiPermissin) 
 
 	if cerr != nil {
 
-		log.Println(cerr)
+		fmt.Println(cerr)
 
 	}
 

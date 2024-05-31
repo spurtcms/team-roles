@@ -1,6 +1,7 @@
 package teamroles
 
 import (
+	"fmt"
 	"strings"
 	"time"
 
@@ -33,7 +34,12 @@ func (RoleConf *PermissionConfig) RoleList(rolelist Rolelist) (roles []Tblrole, 
 		return []Tblrole{}, 0, autherr
 	}
 
-	role, _, _ := AS.GetAllRoles(rolelist.Limit, rolelist.Offset, rolelist.Filter, rolelist.GetAllData, RoleConf.DB)
+	role, _, errr := AS.GetAllRoles(rolelist.Limit, rolelist.Offset, rolelist.Filter, rolelist.GetAllData, RoleConf.DB)
+
+	if errr != nil {
+
+		fmt.Println(errr)
+	}
 
 	_, rolecounts, _ := AS.GetAllRoles(0, 0, rolelist.Filter, rolelist.GetAllData, RoleConf.DB)
 

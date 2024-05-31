@@ -257,7 +257,7 @@ func (as ModelStruct) GetAllModules(limit, offset, id int, filter Filter, DB *go
 
 	if filter.Keyword != "" {
 
-		query = query.Where("LOWER(TRIM(module_name)) ILIKE LOWER(TRIM(?))", "%"+filter.Keyword+"%")
+		query = query.Where("LOWER(TRIM(module_name)) LIKE LOWER(TRIM(?))", "%"+filter.Keyword+"%")
 	}
 
 	if limit != 0 {
@@ -277,7 +277,7 @@ func (as ModelStruct) GetAllModules(limit, offset, id int, filter Filter, DB *go
 /*Get PermissionId By RoleId*/
 func (as ModelStruct) GetPermissionId(roleid int, DB *gorm.DB) (perm []tblrolepermission, err error) {
 
-	if err := DB.Model(tblrolepermission{}).Where("role_id=?", roleid).Find(&perm).Error; err != nil {
+	if err := DB.Table("tbl_role_permissions").Where("role_id=?", roleid).Find(&perm).Error; err != nil {
 
 		return perm, err
 	}
