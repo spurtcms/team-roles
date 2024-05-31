@@ -225,7 +225,7 @@ func (as ModelStruct) CheckPermissionIdExist(roleid int, permissionid []int, DB 
 /**/
 func (as ModelStruct) GetAllParentModules1(DB *gorm.DB) (mod []Tblmodule, err error) {
 
-	if err := DB.Model(TblModule{}).Where("parent_id=0").Find(&mod).Error; err != nil {
+	if err := DB.Model("tbl_modules").Where("parent_id=0").Find(&mod).Error; err != nil {
 
 		return mod, err
 	}
@@ -236,7 +236,7 @@ func (as ModelStruct) GetAllParentModules1(DB *gorm.DB) (mod []Tblmodule, err er
 /**/
 func (as ModelStruct) GetAllSubModules(ids []int, DB *gorm.DB) (mod []Tblmodule, err error) {
 
-	if err := DB.Model(TblModule{}).Where("(tbl_modules.parent_id in (?) or id in(?)) and tbl_modules.assign_permission=1", ids, ids).Order("order_index").Preload("TblModulePermission", func(db *gorm.DB) *gorm.DB {
+	if err := DB.Model("tbl_modules").Where("(tbl_modules.parent_id in (?) or id in(?)) and tbl_modules.assign_permission=1", ids, ids).Order("order_index").Preload("TblModulePermission", func(db *gorm.DB) *gorm.DB {
 		return db.Where("assign_permission =0").Order("order_index asc")
 	}).Find(&mod).Error; err != nil {
 
@@ -334,7 +334,7 @@ func (as ModelStruct) GetModulePermissions(modid int, ids []int, DB *gorm.DB) (p
 
 func (as ModelStruct) CheckModuleExists(modulename string, DB *gorm.DB) (tblmod Tblmodule, err error) {
 
-	if qerr := DB.Model(TblModule{}).Where("module_name =? and parent_id != 0 ").First(tblmod).Error; err != nil {
+	if qerr := DB.Model("tbl_modules").Where("module_name =? and parent_id != 0 ").First(tblmod).Error; err != nil {
 
 		return Tblmodule{}, qerr
 	}
@@ -347,14 +347,14 @@ func (as ModelStruct) CheckModulePemissionExists(moduleid int, permissions Actio
 
 	if permissions == "CRUD" {
 
-		if qerr := DB.Model(TblModule{}).Where("module_id =? and full_access_permission= 1  ", moduleid).First(tblmod).Error; qerr != nil {
+		if qerr := DB.Model("tbl_modules").Where("module_id =? and full_access_permission= 1  ", moduleid).First(tblmod).Error; qerr != nil {
 
 			return TblModulePermission{}, qerr
 		}
 
 	} else {
 
-		if qerr := DB.Model(TblModule{}).Where("module_id =? and display_name = ?  ", moduleid, permissions).First(tblmod).Error; qerr != nil {
+		if qerr := DB.Model("tbl_modules").Where("module_id =? and display_name = ?  ", moduleid, permissions).First(tblmod).Error; qerr != nil {
 
 			return TblModulePermission{}, qerr
 		}
