@@ -54,7 +54,7 @@ type TblModulePermission struct {
 	ModuleId             int                 `gorm:"column:module_id"`
 	CreatedBy            int                 `gorm:"column:created_by"`
 	CreatedOn            time.Time           `gorm:"column:created_on;DEFAULT:NULL"`
-	CreatedDate          string              `gorm:"-:migration"`
+	CreatedDate          string              `gorm:"-:all"`
 	ModifiedBy           int                 `gorm:"DEFAULT:NULL"`
 	ModifiedOn           time.Time           `gorm:"column:modified_by;DEFAULT:NULL"`
 	ModuleName           string              `gorm:"-:migration;<-:false"`
