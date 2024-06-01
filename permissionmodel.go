@@ -37,13 +37,13 @@ type TblModule struct {
 	GroupFlg         int       `gorm:"column:group_flg"`
 }
 
-type TblRolePermission struct {
-	Id           int       `gorm:"primaryKey;auto_increment;type:serial"`
-	RoleId       int       `gorm:"type:integer"`
-	PermissionId int       `gorm:"type:integer"`
-	CreatedBy    int       `gorm:"type:integer"`
-	CreatedOn    time.Time `gorm:"type:timestamp without time zone"`
-}
+// type TblRolePermission struct {
+// 	Id           int       `gorm:"primaryKey;auto_increment;type:serial"`
+// 	RoleId       int       `gorm:"type:integer"`
+// 	PermissionId int       `gorm:"type:integer"`
+// 	CreatedBy    int       `gorm:"type:integer"`
+// 	CreatedOn    time.Time `gorm:"type:timestamp without time zone"`
+// }
 
 type TblModulePermission struct {
 	Id                   int                 `gorm:"column:id"`
@@ -66,7 +66,7 @@ type TblModulePermission struct {
 	OrderIndex           int                 `gorm:"column:order_index"`
 }
 
-type tblrolepermission struct {
+type TblRolePermission struct {
 	Id           int       `gorm:"column:id"`
 	RoleId       int       `gorm:"column:role_id"`
 	PermissionId int       `gorm:"column:permission_id"`
@@ -170,7 +170,7 @@ type MenuMod struct {
 }
 
 /*bulk creation*/
-func (as ModelStruct) CreateRolePermission(roleper *[]tblrolepermission, DB *gorm.DB) error {
+func (as ModelStruct) CreateRolePermission(roleper *[]TblRolePermission, DB *gorm.DB) error {
 
 	if err := DB.Table("tbl_role_permissions").Create(&roleper).Error; err != nil {
 
@@ -181,7 +181,7 @@ func (as ModelStruct) CreateRolePermission(roleper *[]tblrolepermission, DB *gor
 	return nil
 }
 
-func (as ModelStruct) CheckPermissionIdNotExist(roleid int, permissionid []int, DB *gorm.DB) (roleperm []tblrolepermission, err error) {
+func (as ModelStruct) CheckPermissionIdNotExist(roleid int, permissionid []int, DB *gorm.DB) (roleperm []TblRolePermission, err error) {
 
 	if err := DB.Table("tbl_role_permissions").Where("role_id=? and permission_id not in(?)", roleid, permissionid).Find(&roleperm).Error; err != nil {
 
@@ -192,7 +192,7 @@ func (as ModelStruct) CheckPermissionIdNotExist(roleid int, permissionid []int, 
 }
 
 /*Delete Role Permission by id*/
-func (as ModelStruct) Deleterolepermission(id int, DB *gorm.DB) (TblRolePermission tblrolepermission, err error) {
+func (as ModelStruct) Deleterolepermission(id int, DB *gorm.DB) (TblRolePermission TblRolePermission, err error) {
 
 	if err := DB.Where("permission_id=?", id).Delete(&TblRolePermission).Error; err != nil {
 
@@ -202,7 +202,7 @@ func (as ModelStruct) Deleterolepermission(id int, DB *gorm.DB) (TblRolePermissi
 	return TblRolePermission, nil
 }
 
-func (as ModelStruct) DeleteRolePermissionById(roleid int, DB *gorm.DB) (roleper []tblrolepermission, err error) {
+func (as ModelStruct) DeleteRolePermissionById(roleid int, DB *gorm.DB) (roleper []TblRolePermission, err error) {
 
 	if err := DB.Where("role_id=?", roleid).Delete(&roleper).Error; err != nil {
 
@@ -275,7 +275,7 @@ func (as ModelStruct) GetAllModules(limit, offset, id int, filter Filter, DB *go
 }
 
 /*Get PermissionId By RoleId*/
-func (as ModelStruct) GetPermissionId(roleid int, DB *gorm.DB) (perm []tblrolepermission, err error) {
+func (as ModelStruct) GetPermissionId(roleid int, DB *gorm.DB) (perm []TblRolePermission, err error) {
 
 	if err := DB.Table("tbl_role_permissions").Where("role_id=?", roleid).Find(&perm).Error; err != nil {
 

@@ -15,11 +15,11 @@ func (permission *PermissionConfig) CreatePermission(Perm MultiPermissin) error 
 		return autherr
 	}
 
-	var createrolepermission []tblrolepermission
+	var createrolepermission []TblRolePermission
 
 	for _, roleperm := range Perm.Ids {
 
-		var createmod tblrolepermission
+		var createmod TblRolePermission
 
 		createmod.PermissionId = roleperm
 
@@ -66,7 +66,7 @@ func (permission *PermissionConfig) CreatePermission1(permissions CreatePermissi
 		return ErrorModulePermissionNotFound
 	}
 
-	var createmod tblrolepermission
+	var createmod TblRolePermission
 
 	createmod.PermissionId = modper.Id
 
@@ -121,11 +121,11 @@ func (permission *PermissionConfig) CreateUpdatePermission(Perm MultiPermissin) 
 
 	pid := Difference(Perm.Ids, existid)
 
-	var createrolepermission []tblrolepermission
+	var createrolepermission []TblRolePermission
 
 	for _, roleperm := range pid {
 
-		var createmod tblrolepermission
+		var createmod TblRolePermission
 
 		createmod.PermissionId = roleperm
 

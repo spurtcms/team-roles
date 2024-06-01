@@ -3,7 +3,7 @@ module github.com/spurtcms/team-roles
 go 1.19
 
 require (
-	github.com/spurtcms/auth v0.0.0-20240426140149-9722eae2938c
+	github.com/spurtcms/auth v0.0.2
 	gorm.io/driver/postgres v1.5.0
 	gorm.io/gorm v1.25.9
 )
