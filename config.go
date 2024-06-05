@@ -29,4 +29,6 @@ type PermissionConfig struct {
 	DataBaseType     Type
 	AuthFlg          bool
 	PermissionFlg    bool
+	UserId           int
+	DataAccess       int
 }

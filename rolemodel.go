@@ -63,12 +63,22 @@ type Rolelist struct {
 	GetAllData bool
 }
 
-type ModelStruct struct{} //Just Group the all model using this struct
+// Just Group the all model using this struct
+type ModelStruct struct {
+	UserId     int
+	DataAccess int
+}
 
 // Get all roles list with limit and offset
 func (as ModelStruct) GetAllRoles(limit, offset int, filter Filter, getalldata bool, DB *gorm.DB) (role []Tblrole, rolecount int64, err error) {
 
 	query := DB.Table("tbl_roles").Where("is_deleted = 0").Order("id desc")
+
+	if as.DataAccess == 1 {
+
+		query = query.Where("tbl_roles.created_by = ?", as.UserId)
+
+	}
 
 	if filter.Keyword != "" {
 
