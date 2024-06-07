@@ -248,3 +248,12 @@ func (as ModelStruct) RoleIsActive(role *TblRole, id, val int, DB *gorm.DB) erro
 
 	return nil
 }
+
+func (as ModelStruct) GetRoleByName(role *[]TblRole, DB *gorm.DB) error {
+
+	if err := DB.Table("tbl_roles").Where("slug IN (?)", []string{"admin", "super_admin"}).Find(&role).Error; err != nil {
+		return err
+	}
+
+	return nil
+}

@@ -245,3 +245,17 @@ func (RoleConf *PermissionConfig) RoleStatus(roleid int, status int, userid int)
 	return nil
 
 }
+
+func (RoleConf *PermissionConfig) GetRoleByName() (tblrole []TblRole, err error) {
+
+	if autherr := AuthandPermission(RoleConf); autherr != nil {
+		return []TblRole{}, autherr
+	}
+
+	var role []TblRole
+
+	AS.GetRoleByName(&role, RoleConf.DB)
+
+	return role, nil
+
+}
