@@ -25,7 +25,7 @@ func RoleSetup(config Config) *PermissionConfig {
 
 var AS ModelStruct
 
-// create role
+// role list
 func (RoleConf *PermissionConfig) RoleList(rolelist Rolelist) (roles []Tblrole, rolecount int64, err error) {
 
 	//check if auth or permission enabled
@@ -33,6 +33,9 @@ func (RoleConf *PermissionConfig) RoleList(rolelist Rolelist) (roles []Tblrole, 
 
 		return []Tblrole{}, 0, autherr
 	}
+
+	AS.DataAccess = RoleConf.DataAccess
+	AS.UserId = RoleConf.UserId
 
 	role, _, errr := AS.GetAllRoles(rolelist.Limit, rolelist.Offset, rolelist.Filter, rolelist.GetAllData, RoleConf.DB)
 
