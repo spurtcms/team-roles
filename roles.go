@@ -26,7 +26,7 @@ func RoleSetup(config Config) *PermissionConfig {
 var AS ModelStruct
 
 // role list
-func (RoleConf *PermissionConfig) RoleList(rolelist Rolelist) (roles []Tblrole, rolecount int64, err error) {
+func (RoleConf *PermissionConfig) RoleList(rolelist Rolelist, tenantid int) (roles []Tblrole, rolecount int64, err error) {
 
 	//check if auth or permission enabled
 	if autherr := AuthandPermission(RoleConf); autherr != nil {
@@ -37,21 +37,21 @@ func (RoleConf *PermissionConfig) RoleList(rolelist Rolelist) (roles []Tblrole, 
 	AS.DataAccess = RoleConf.DataAccess
 	AS.UserId = RoleConf.UserId
 
-	role, _, errr := AS.GetAllRoles(rolelist.Limit, rolelist.Offset, rolelist.Filter, rolelist.GetAllData, RoleConf.DB)
+	role, _, errr := AS.GetAllRoles(rolelist.Limit, rolelist.Offset, rolelist.Filter, rolelist.GetAllData, RoleConf.DB, tenantid)
 
 	if errr != nil {
 
 		fmt.Println(errr)
 	}
 
-	_, rolecounts, _ := AS.GetAllRoles(0, 0, rolelist.Filter, rolelist.GetAllData, RoleConf.DB)
+	_, rolecounts, _ := AS.GetAllRoles(0, 0, rolelist.Filter, rolelist.GetAllData, RoleConf.DB, tenantid)
 
 	return role, rolecounts, nil
 
 }
 
 // get role by id
-func (RoleConf *PermissionConfig) GetRoleById(roleid int) (tblrol Tblrole, err error) {
+func (RoleConf *PermissionConfig) GetRoleById(roleid int, tenantid int) (tblrol Tblrole, err error) {
 
 	//check if auth or permission enabled
 	if autherr := AuthandPermission(RoleConf); autherr != nil {
@@ -61,7 +61,7 @@ func (RoleConf *PermissionConfig) GetRoleById(roleid int) (tblrol Tblrole, err e
 
 	var AS ModelStruct
 
-	role, err := AS.GetRoleById(roleid, RoleConf.DB)
+	role, err := AS.GetRoleById(roleid, RoleConf.DB, tenantid)
 
 	if err != nil {
 
@@ -97,6 +97,8 @@ func (RoleConf *PermissionConfig) CreateRole(rolec RoleCreation) (Tblrole, error
 
 	role.CreatedBy = rolec.CreatedBy
 
+	role.TenantId = rolec.TenantId
+
 	err := AS.RoleCreate(&role, RoleConf.DB)
 
 	if err != nil {
@@ -109,7 +111,7 @@ func (RoleConf *PermissionConfig) CreateRole(rolec RoleCreation) (Tblrole, error
 }
 
 // update role
-func (RoleConf *PermissionConfig) UpdateRole(rolec RoleCreation, roleid int) (updaterole Tblrole, err error) {
+func (RoleConf *PermissionConfig) UpdateRole(rolec RoleCreation, roleid int, tenantid int) (updaterole Tblrole, err error) {
 
 	//check if auth or permission enabled
 	if autherr := AuthandPermission(RoleConf); autherr != nil {
@@ -134,7 +136,7 @@ func (RoleConf *PermissionConfig) UpdateRole(rolec RoleCreation, roleid int) (up
 
 	role.ModifiedBy = rolec.CreatedBy
 
-	err1 := AS.RoleUpdate(&role, RoleConf.DB)
+	err1 := AS.RoleUpdate(&role, RoleConf.DB, tenantid)
 
 	if err1 != nil {
 
@@ -146,7 +148,7 @@ func (RoleConf *PermissionConfig) UpdateRole(rolec RoleCreation, roleid int) (up
 }
 
 // delete seleted role
-func (RoleConf *PermissionConfig) DeleteRole(roleids []int, roleid int) (bool, error) {
+func (RoleConf *PermissionConfig) DeleteRole(roleids []int, roleid int, tenantid int) (bool, error) {
 
 	//check if auth or permission enabled
 	if autherr := AuthandPermission(RoleConf); autherr != nil {
@@ -156,11 +158,11 @@ func (RoleConf *PermissionConfig) DeleteRole(roleids []int, roleid int) (bool, e
 
 	var role TblRole
 
-	err1 := AS.MultiSelectRoleDelete(&role, roleids, roleid, RoleConf.DB)
+	err1 := AS.MultiSelectRoleDelete(&role, roleids, roleid, RoleConf.DB, tenantid)
 
 	var permissions []TblRolePermission
 
-	AS.MultiSelectDeleteRolePermissionById(&permissions, roleids, roleid, RoleConf.DB)
+	AS.MultiSelectDeleteRolePermissionById(&permissions, roleids, roleid, RoleConf.DB, tenantid)
 
 	if err1 != nil {
 
@@ -172,7 +174,7 @@ func (RoleConf *PermissionConfig) DeleteRole(roleids []int, roleid int) (bool, e
 }
 
 /*Check Role Already Exists*/
-func (RoleConf *PermissionConfig) CheckRoleAlreadyExists(roleid int, rolename string) (bool, error) {
+func (RoleConf *PermissionConfig) CheckRoleAlreadyExists(roleid int, rolename string, tenantid int) (bool, error) {
 
 	//check if auth or permission enabled
 	if autherr := AuthandPermission(RoleConf); autherr != nil {
@@ -182,7 +184,7 @@ func (RoleConf *PermissionConfig) CheckRoleAlreadyExists(roleid int, rolename st
 
 	var role TblRole
 
-	err1 := AS.CheckRoleExists(&role, roleid, rolename, RoleConf.DB)
+	err1 := AS.CheckRoleExists(&role, roleid, rolename, RoleConf.DB, tenantid)
 
 	if err1 != nil {
 
@@ -198,7 +200,7 @@ func (RoleConf *PermissionConfig) CheckRoleAlreadyExists(roleid int, rolename st
 }
 
 // update selected role status
-func (RoleConf *PermissionConfig) MultiSelectRoleStatus(roleid []int, status int, userid int) (err error) {
+func (RoleConf *PermissionConfig) MultiSelectRoleStatus(roleid []int, status int, userid int, tenantid int) (err error) {
 
 	//check if auth or permission enabled
 	if autherr := AuthandPermission(RoleConf); autherr != nil {
@@ -212,7 +214,7 @@ func (RoleConf *PermissionConfig) MultiSelectRoleStatus(roleid []int, status int
 
 	rolestatus.ModifiedOn, _ = time.Parse("2006-01-02 15:04:05", time.Now().UTC().Format("2006-01-02 15:04:05"))
 
-	err1 := AS.MultiSelectRoleIsActive(&rolestatus, roleid, status, RoleConf.DB)
+	err1 := AS.MultiSelectRoleIsActive(&rolestatus, roleid, status, RoleConf.DB, tenantid)
 
 	if err1 != nil {
 
@@ -224,7 +226,7 @@ func (RoleConf *PermissionConfig) MultiSelectRoleStatus(roleid []int, status int
 }
 
 // change role status 0-inactive, 1-active
-func (RoleConf *PermissionConfig) RoleStatus(roleid int, status int, userid int) (err error) {
+func (RoleConf *PermissionConfig) RoleStatus(roleid int, status int, userid int, tenantid int) (err error) {
 
 	//check if auth or permission enabled
 	if autherr := AuthandPermission(RoleConf); autherr != nil {
@@ -238,7 +240,7 @@ func (RoleConf *PermissionConfig) RoleStatus(roleid int, status int, userid int)
 
 	rolestatus.ModifiedOn, _ = time.Parse("2006-01-02 15:04:05", time.Now().UTC().Format("2006-01-02 15:04:05"))
 
-	err1 := AS.RoleIsActive(&rolestatus, roleid, status, RoleConf.DB)
+	err1 := AS.RoleIsActive(&rolestatus, roleid, status, RoleConf.DB, tenantid)
 
 	if err1 != nil {
 
@@ -249,7 +251,7 @@ func (RoleConf *PermissionConfig) RoleStatus(roleid int, status int, userid int)
 
 }
 
-func (RoleConf *PermissionConfig) GetRoleByName() (tblrole []TblRole, err error) {
+func (RoleConf *PermissionConfig) GetRoleByName(tenantid int) (tblrole []TblRole, err error) {
 
 	if autherr := AuthandPermission(RoleConf); autherr != nil {
 		return []TblRole{}, autherr
@@ -257,7 +259,7 @@ func (RoleConf *PermissionConfig) GetRoleByName() (tblrole []TblRole, err error)
 
 	var role []TblRole
 
-	AS.GetRoleByName(&role, RoleConf.DB)
+	AS.GetRoleByName(&role, RoleConf.DB, tenantid)
 
 	return role, nil
 

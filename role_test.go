@@ -53,7 +53,7 @@ func TestRoleList(t *testing.T) {
 
 	Auth.VerifyToken(token, SecretKey)
 
-	permisison, _ := Auth.IsGranted("Roles & Permissions", auth.CRUD)
+	permisison, _ := Auth.IsGranted("Roles & Permissions", auth.CRUD, TenantId)
 
 	PermissionFlg := RoleSetup(Config{
 		AuthEnable:       true,
@@ -64,7 +64,7 @@ func TestRoleList(t *testing.T) {
 
 	if permisison {
 
-		rolelist, count, err := PermissionFlg.RoleList(Rolelist{Limit: 10, Offset: 0})
+		rolelist, count, err := PermissionFlg.RoleList(Rolelist{Limit: 10, Offset: 0}, TenantId)
 
 		if err != nil {
 
@@ -96,7 +96,7 @@ func TestCreateRole(t *testing.T) {
 
 	Auth.VerifyToken(token, SecretKey)
 
-	permisison, _ := Auth.IsGranted("Roles & Permissions", auth.CRUD)
+	permisison, _ := Auth.IsGranted("Roles & Permissions", auth.CRUD, TenantId)
 
 	PermissionFlg := RoleSetup(Config{
 		AuthEnable:       true,
@@ -138,7 +138,7 @@ func TestUpdateRole(t *testing.T) {
 
 	Auth.VerifyToken(token, SecretKey)
 
-	permisison, _ := Auth.IsGranted("Roles & Permissions", auth.CRUD)
+	permisison, _ := Auth.IsGranted("Roles & Permissions", auth.CRUD, TenantId)
 
 	PermissionFlg := RoleSetup(Config{
 		AuthEnable:       true,
@@ -149,7 +149,7 @@ func TestUpdateRole(t *testing.T) {
 
 	if permisison {
 
-		rolecreate, err := PermissionFlg.UpdateRole(RoleCreation{Name: "Manager", Description: "deportment of marketting", CreatedBy: 1}, 3)
+		rolecreate, err := PermissionFlg.UpdateRole(RoleCreation{Name: "Manager", Description: "deportment of marketting", CreatedBy: 1}, 3, TenantId)
 
 		if err != nil {
 
@@ -181,7 +181,7 @@ func TestDeleteRole(t *testing.T) {
 
 	Auth.VerifyToken(token, SecretKey)
 
-	permisison, _ := Auth.IsGranted("Roles & Permissions", auth.CRUD)
+	permisison, _ := Auth.IsGranted("Roles & Permissions", auth.CRUD, TenantId)
 
 	PermissionFlg := RoleSetup(Config{
 		AuthEnable:       true,
@@ -192,7 +192,7 @@ func TestDeleteRole(t *testing.T) {
 
 	if permisison {
 
-		flg, err := PermissionFlg.DeleteRole([]int{}, 1)
+		flg, err := PermissionFlg.DeleteRole([]int{}, 1, TenantId)
 
 		if err != nil {
 
@@ -224,7 +224,7 @@ func TestCheckRole(t *testing.T) {
 
 	Auth.VerifyToken(token, SecretKey)
 
-	permisison, _ := Auth.IsGranted("Roles & Permissions", auth.CRUD)
+	permisison, _ := Auth.IsGranted("Roles & Permissions", auth.CRUD, TenantId)
 
 	PermissionFlg := RoleSetup(Config{
 		AuthEnable:       true,
@@ -234,7 +234,7 @@ func TestCheckRole(t *testing.T) {
 	})
 
 	if permisison {
-		flg, err := PermissionFlg.CheckRoleAlreadyExists(3, "Manager")
+		flg, err := PermissionFlg.CheckRoleAlreadyExists(3, "Manager", TenantId)
 
 		if err != nil {
 
@@ -266,7 +266,7 @@ func TestGetRoleById(t *testing.T) {
 
 	Auth.VerifyToken(token, SecretKey)
 
-	permisison, _ := Auth.IsGranted("Roles & Permissions", auth.CRUD)
+	permisison, _ := Auth.IsGranted("Roles & Permissions", auth.CRUD, TenantId)
 
 	PermissionFlg := RoleSetup(Config{
 		AuthEnable:       true,
@@ -276,7 +276,7 @@ func TestGetRoleById(t *testing.T) {
 	})
 
 	if permisison {
-		role, err := PermissionFlg.GetRoleById(3)
+		role, err := PermissionFlg.GetRoleById(3, TenantId)
 
 		if err != nil {
 

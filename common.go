@@ -1,6 +1,10 @@
 package teamroles
 
-import "errors"
+import (
+	"errors"
+	"os"
+	"strconv"
+)
 
 var (
 	ErrorAuthentication           = errors.New("auth enabled not initialised")
@@ -12,6 +16,7 @@ var (
 	ErrorModulePermissionNotFound = errors.New("module permission not found")
 	ErrorRoleNameEmpty            = errors.New("role name is empty")
 	ErrorInvalidroleid            = errors.New("invalid roleid cannot delete")
+	TenantId, _                   = strconv.Atoi(os.Getenv("Tenant_ID"))
 )
 
 const (

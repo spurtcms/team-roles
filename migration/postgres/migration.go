@@ -17,6 +17,7 @@ type TblRole struct {
 	CreatedBy   int       `gorm:"type:integer"`
 	ModifiedOn  time.Time `gorm:"type:timestamp without time zone;DEFAULT:NULL"`
 	ModifiedBy  int       `gorm:"DEFAULT:NULL;type:integer"`
+	TenantId    int       `gorm:"type:integer"`
 }
 
 type TblModule struct {
@@ -33,6 +34,7 @@ type TblModule struct {
 	CreatedOn        time.Time `gorm:"type:timestamp without time zone"`
 	MenuType         string    `gorm:"type:character varying"`
 	GroupFlg         int       `gorm:"type:integer"`
+	TenantId         int       `gorm:"type:integer"`
 }
 
 type TblModulePermission struct {
@@ -51,6 +53,7 @@ type TblModulePermission struct {
 	CreatedOn            time.Time `gorm:"type:timestamp without time zone"`
 	ModifiedBy           int       `gorm:"DEFAULT:NULL"`
 	ModifiedOn           time.Time `gorm:"type:timestamp without time zone;DEFAULT:NULL"`
+	TenantId             int       `gorm:"type:integer"`
 }
 
 type TblRolePermission struct {
@@ -59,6 +62,7 @@ type TblRolePermission struct {
 	PermissionId int       `gorm:"type:integer"`
 	CreatedBy    int       `gorm:"type:integer"`
 	CreatedOn    time.Time `gorm:"type:timestamp without time zone"`
+	TenantId     int       `gorm:"type:integer"`
 }
 
 type TblRoleUser struct {
@@ -69,6 +73,7 @@ type TblRoleUser struct {
 	CreatedOn  time.Time `gorm:"type:timestamp without time zone;DEFAULT:NULL"`
 	ModifiedBy int       `gorm:"DEFAULT:NULL"`
 	ModifiedOn time.Time `gorm:"type:timestamp without time zone;DEFAULT:NULL"`
+	TenantId   int       `gorm:"type:integer"`
 }
 
 func MigrationTables(db *gorm.DB) {

@@ -27,6 +27,8 @@ func (permission *PermissionConfig) CreatePermission(Perm MultiPermissin) error 
 
 		createmod.CreatedBy = Perm.CreatedBy
 
+		createmod.TenantId = Perm.TenantId
+
 		createmod.CreatedOn, _ = time.Parse("2006-01-02 15:04:05", time.Now().UTC().Format("2006-01-02 15:04:05"))
 
 		createrolepermission = append(createrolepermission, createmod)
@@ -52,14 +54,14 @@ func (permission *PermissionConfig) CreatePermission1(permissions CreatePermissi
 		return autherr
 	}
 
-	module, err := AS.CheckModuleExists(permissions.ModuleName, permission.DB)
+	module, err := AS.CheckModuleExists(permissions.ModuleName, permission.DB, permissions.TenantId)
 
 	if err == gorm.ErrRecordNotFound {
 
 		return ErrorModuleNotFound
 	}
 
-	modper, moderr := AS.CheckModulePemissionExists(module.Id, permissions.Permission, permission.DB)
+	modper, moderr := AS.CheckModulePemissionExists(module.Id, permissions.Permission, permission.DB, permissions.TenantId)
 
 	if moderr == gorm.ErrRecordNotFound {
 
@@ -74,6 +76,8 @@ func (permission *PermissionConfig) CreatePermission1(permissions CreatePermissi
 
 	createmod.CreatedBy = permissions.CreatedBy
 
+	createmod.TenantId = permissions.TenantId
+
 	createmod.CreatedOn, _ = time.Parse("2006-01-02 15:04:05", time.Now().UTC().Format("2006-01-02 15:04:05"))
 
 	return nil
@@ -87,11 +91,11 @@ func (permission *PermissionConfig) CreateUpdatePermission(Perm MultiPermissin) 
 		return autherr
 	}
 
-	checknotexist, cnerr := AS.CheckPermissionIdNotExist(Perm.RoleId, Perm.Ids, permission.DB)
+	checknotexist, cnerr := AS.CheckPermissionIdNotExist(Perm.RoleId, Perm.Ids, permission.DB, Perm.TenantId)
 
 	if len(Perm.Ids) == 0 {
 
-		AS.Deleterolepermission(Perm.RoleId, permission.DB)
+		AS.Deleterolepermission(Perm.RoleId, permission.DB, Perm.TenantId)
 	}
 
 	if cnerr != nil {
@@ -100,10 +104,10 @@ func (permission *PermissionConfig) CreateUpdatePermission(Perm MultiPermissin) 
 
 	} else if len(checknotexist) != 0 {
 
-		AS.DeleteRolePermissionById(Perm.RoleId, permission.DB)
+		AS.DeleteRolePermissionById(Perm.RoleId, permission.DB, Perm.TenantId)
 	}
 
-	checkexist, cerr := AS.CheckPermissionIdExist(Perm.RoleId, Perm.Ids, permission.DB)
+	checkexist, cerr := AS.CheckPermissionIdExist(Perm.RoleId, Perm.Ids, permission.DB, Perm.TenantId)
 
 	if cerr != nil {
 
@@ -131,6 +135,8 @@ func (permission *PermissionConfig) CreateUpdatePermission(Perm MultiPermissin) 
 
 		createmod.RoleId = Perm.RoleId
 
+		createmod.TenantId = Perm.TenantId
+
 		createmod.CreatedBy = Perm.CreatedBy
 
 		createmod.CreatedOn, _ = time.Parse("2006-01-02 15:04:05", time.Now().UTC().Format("2006-01-02 15:04:05"))
@@ -151,14 +157,14 @@ func (permission *PermissionConfig) CreateUpdatePermission(Perm MultiPermissin) 
 
 }
 
-func (permission *PermissionConfig) PermissionList() (menu []MenuMod, err error) {
+func (permission *PermissionConfig) PermissionList(tenantid int) (menu []MenuMod, err error) {
 
 	if autherr := AuthandPermission(permission); autherr != nil {
 
 		return []MenuMod{}, autherr
 	}
 
-	parentModules, err := AS.GetAllParentModule(permission.DB) //get parent default main module only
+	parentModules, err := AS.GetAllParentModule(permission.DB, tenantid) //get parent default main module only
 
 	var Final []MenuMod
 
@@ -172,7 +178,9 @@ func (permission *PermissionConfig) PermissionList() (menu []MenuMod, err error)
 
 		fin.IconPath = val.IconPath
 
-		subModules, _ := AS.GetAllSubModule(val.Id, permission.DB)
+		fin.TenantId = val.TenantId
+
+		subModules, _ := AS.GetAllSubModule(val.Id, permission.DB, tenantid)
 
 		var Suball []SubModule
 
@@ -188,7 +196,9 @@ func (permission *PermissionConfig) PermissionList() (menu []MenuMod, err error)
 
 				sub.IconPath = tab.IconPath
 
-				rout, _ := AS.GetModulePermissions(tab.Id, []int{}, permission.DB)
+				sub.TenantId = tab.TenantId
+
+				rout, _ := AS.GetModulePermissions(tab.Id, []int{}, permission.DB, tenantid)
 
 				var Url []URL
 
@@ -228,7 +238,7 @@ func (permission *PermissionConfig) PermissionList() (menu []MenuMod, err error)
 }
 
 // permission List
-func (permission *PermissionConfig) PermissionListRoleId(limit, offset, roleid int, filter Filter) (Module []Tblmodule, count int64, err error) {
+func (permission *PermissionConfig) PermissionListRoleId(limit, offset, roleid int, filter Filter, tenantid int) (Module []Tblmodule, count int64, err error) {
 
 	if autherr := AuthandPermission(permission); autherr != nil {
 
@@ -239,14 +249,14 @@ func (permission *PermissionConfig) PermissionListRoleId(limit, offset, roleid i
 
 	var parentid []int //all parentid
 
-	allmodule, err := AS.GetAllParentModules1(permission.DB)
+	allmodule, err := AS.GetAllParentModules1(permission.DB, tenantid)
 
 	for _, val := range allmodule {
 
 		parentid = append(parentid, val.Id)
 	}
 
-	submod, err := AS.GetAllSubModules(parentid, permission.DB)
+	submod, err := AS.GetAllSubModules(parentid, permission.DB, tenantid)
 
 	for _, val := range allmodule {
 
@@ -265,6 +275,8 @@ func (permission *PermissionConfig) PermissionListRoleId(limit, offset, roleid i
 			newmod.IsActive = val.IsActive
 
 			newmod.IconPath = val.IconPath
+
+			newmod.TenantId = val.TenantId
 
 			newmod.CreatedDate = val.CreatedOn.Format("02 Jan 2006 03:04 PM")
 
@@ -293,6 +305,8 @@ func (permission *PermissionConfig) PermissionListRoleId(limit, offset, roleid i
 							modper.Description = getmod.Description
 
 							modper.TblRolePermission = getmod.TblRolePermission
+
+							modper.TenantId = getmod.TenantId
 
 							modper.CreatedDate = val.CreatedOn.Format("2006-01-02 15:04:05")
 
@@ -324,6 +338,8 @@ func (permission *PermissionConfig) PermissionListRoleId(limit, offset, roleid i
 
 			newmod.IconPath = val.IconPath
 
+			newmod.TenantId = val.TenantId
+
 			newmod.CreatedDate = val.CreatedOn.Format("02 Jan 2006 03:04 PM")
 
 			for _, sub := range submod {
@@ -353,6 +369,8 @@ func (permission *PermissionConfig) PermissionListRoleId(limit, offset, roleid i
 							modper.TblRolePermission = getmod.TblRolePermission
 
 							modper.CreatedDate = val.CreatedOn.Format("2006-01-02 15:04:05")
+
+							modper.TenantId = val.TenantId
 
 							modper.FullAccessPermission = getmod.FullAccessPermission
 
@@ -386,6 +404,8 @@ func (permission *PermissionConfig) PermissionListRoleId(limit, offset, roleid i
 
 					newmod.IconPath = sub.IconPath
 
+					newmod.TenantId = sub.TenantId
+
 					newmod.CreatedDate = sub.CreatedOn.Format("02 Jan 2006 03:04 PM")
 
 					for _, getmod := range sub.TblModulePermission {
@@ -410,6 +430,8 @@ func (permission *PermissionConfig) PermissionListRoleId(limit, offset, roleid i
 
 							modper.TblRolePermission = getmod.TblRolePermission
 
+							modper.TenantId = getmod.TenantId
+
 							modper.CreatedDate = val.CreatedOn.Format("2006-01-02 15:04:05")
 
 							modper.FullAccessPermission = getmod.FullAccessPermission
@@ -428,14 +450,14 @@ func (permission *PermissionConfig) PermissionListRoleId(limit, offset, roleid i
 
 	}
 
-	_, Totalcount := AS.GetAllModules(0, 0, roleid, filter, permission.DB)
+	_, Totalcount := AS.GetAllModules(0, 0, roleid, filter, permission.DB, tenantid)
 
 	return allmodules, Totalcount, nil
 
 }
 
 // permission List
-func (permission *PermissionConfig) GetPermissionDetailsById(roleid int) (rolepermissionid []int, err error) {
+func (permission *PermissionConfig) GetPermissionDetailsById(roleid int, tenantid int) (rolepermissionid []int, err error) {
 
 	if autherr := AuthandPermission(permission); autherr != nil {
 
@@ -444,7 +466,7 @@ func (permission *PermissionConfig) GetPermissionDetailsById(roleid int) (rolepe
 
 	var permissionid []int
 
-	roleper, err := AS.GetPermissionId(roleid, permission.DB)
+	roleper, err := AS.GetPermissionId(roleid, permission.DB, tenantid)
 
 	for _, val := range roleper {
 
