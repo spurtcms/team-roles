@@ -62,7 +62,7 @@ type TblRolePermission struct {
 	RoleId       int       `gorm:"type:integer"`
 	PermissionId int       `gorm:"type:integer"`
 	CreatedBy    int       `gorm:"type:integer"`
-	CreatedOn    time.Time `gorm:"type:timestamp without time zone"`
+	CreatedOn    time.Time `gorm:"type:datetime;DEFAULT:NULL"`
 	TenantId     int       `gorm:"type:int"`
 }
 
@@ -88,7 +88,6 @@ func MigrationTables(db *gorm.DB) {
 	)
 
 	if err != nil {
-
 		panic(err)
 	}
 }

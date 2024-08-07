@@ -26,7 +26,7 @@ type Tblrole struct {
 	ModifiedBy  int       `gorm:"column:modified_by;DEFAULT:NULL"`
 	CreatedDate string    `gorm:"-:migration;<-:false"`
 	User        []tbluser `gorm:"-"`
-	TenantId    int       `gorm:"column:tenant_id"`
+	TenantId    int       `gorm:"column:tenant_id;DEFAULT:NULL"`
 }
 
 type tblroleuser struct {
@@ -43,7 +43,7 @@ type tblroleuser struct {
 	Description  string    `gorm:"-"`
 	ModuleId     int       `gorm:"-:migration;<-"`
 	PermissionId int       `gorm:"-"`
-	TenantId     int       `gorm:"column:tenant_id"`
+	TenantId     int       `gorm:"column:tenant_id;DEFAULT:NULL`
 }
 
 type TblRole struct {
@@ -57,7 +57,7 @@ type TblRole struct {
 	CreatedBy   int       `gorm:"column:created_by"`
 	ModifiedOn  time.Time `gorm:"column:modified_on"`
 	ModifiedBy  int       `gorm:"column:modified_by"`
-	TenantId    int       `gorm:"column:tenant_id"`
+	TenantId    int       `gorm:"column:tenant_id;DEFAULT:NULL"`
 }
 
 type Rolelist struct {
@@ -76,7 +76,7 @@ type ModelStruct struct {
 // Get all roles list with limit and offset
 func (as ModelStruct) GetAllRoles(limit, offset int, filter Filter, getalldata bool, DB *gorm.DB, tenantid int) (role []Tblrole, rolecount int64, err error) {
 
-	query := DB.Table("tbl_roles").Where("is_deleted = 0 and tenant_id = ?", tenantid).Order("id desc")
+	query := DB.Table("tbl_roles").Where("is_deleted = 0 and (tenant_id is NULL or tenant_id = ?)", tenantid).Order("id desc")
 
 	if as.DataAccess == 1 {
 
@@ -110,9 +110,9 @@ func (as ModelStruct) GetAllRoles(limit, offset int, filter Filter, getalldata b
 }
 
 /*Get role by id*/
-func (as ModelStruct) GetRoleById(id int, DB *gorm.DB, tenantid int) (role Tblrole, err error) {
+func (as ModelStruct) GetRoleById(id int, DB *gorm.DB,tenantid int) (role Tblrole, err error) {
 
-	if err := DB.Table("tbl_roles").Where("id=? and tenant_id = ?", id, tenantid).First(&role).Error; err != nil {
+	if err := DB.Debug().Table("tbl_roles").Where("id=? and (tenant_id is NULL or tenant_id = ?)", id,tenantid).First(&role).Error; err != nil {
 
 		return Tblrole{}, err
 
@@ -124,7 +124,7 @@ func (as ModelStruct) GetRoleById(id int, DB *gorm.DB, tenantid int) (role Tblro
 // Roels Insert
 func (as ModelStruct) RoleCreate(role *Tblrole, DB *gorm.DB) error {
 
-	if err := DB.Table("tbl_roles").Create(role).Error; err != nil {
+	if err := DB.Debug().Table("tbl_roles").Create(role).Error; err != nil {
 
 		return err
 	}
@@ -173,7 +173,7 @@ func (as ModelStruct) CheckRoleExists(role *TblRole, id int, name string, DB *go
 
 }
 
-func (as ModelStruct) GetRolesData(roles []Tblrole, DB *gorm.DB, tenantid int64) error {
+func (as ModelStruct) GetRolesData(roles *[]Tblrole, DB *gorm.DB, tenantid int64) error {
 
 	if err := DB.Where("is_deleted=? and is_active=1 and tenant_id  =?", 0, tenantid).Order("name").Find(&roles).Error; err != nil {
 
