@@ -261,3 +261,12 @@ func (as ModelStruct) GetRoleByName(role *[]TblRole, DB *gorm.DB, tenantid int) 
 
 	return nil
 }
+// get role by slugname
+func (as ModelStruct) GetRoleBySlug(slug string, DB *gorm.DB, tenantid int) (role TblRole, err error) {
+
+	if err := DB.Table("tbl_roles").Where("slug =?  and (tenant_id is NULL or tenant_id = ?) and is_deleted=0", slug, tenantid).Find(&role).Error; err != nil {
+		return TblRole{}, err
+	}
+
+	return role, nil
+}

@@ -264,3 +264,21 @@ func (RoleConf *PermissionConfig) GetRoleByName(tenantid int) (tblrole []TblRole
 	return role, nil
 
 }
+// get role by slugname
+func (RoleConf *PermissionConfig) GetRoleBySlug(slug string,tenantid int) (role TblRole, err error) {
+
+	if autherr := AuthandPermission(RoleConf); autherr != nil {
+		return TblRole{}, autherr
+	}
+
+	roledetails, err := AS.GetRoleBySlug(slug, RoleConf.DB,tenantid)
+
+	if err != nil {
+
+		return TblRole{}, err
+	}
+
+	return roledetails, nil
+
+}
+
