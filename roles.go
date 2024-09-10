@@ -50,6 +50,19 @@ func (RoleConf *PermissionConfig) RoleList(rolelist Rolelist, tenantid int) (rol
 
 }
 
+// get roleid using user table
+func (RoleConf *PermissionConfig) GetRoleids(loginid int)(user int){
+	AS.DataAccess = RoleConf.DataAccess
+	AS.UserId = RoleConf.UserId
+	user,err:= AS.RoleId(loginid,RoleConf.DB)
+	if err != nil {
+
+		fmt.Println(err)
+	}
+   return user
+
+}
+
 // get role by id
 func (RoleConf *PermissionConfig) GetRoleById(roleid int, tenantid int) (tblrol Tblrole, err error) {
 

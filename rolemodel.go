@@ -108,6 +108,13 @@ func (as ModelStruct) GetAllRoles(limit, offset int, filter Filter, getalldata b
 
 }
 
+func (as ModelStruct) RoleId(id int,DB *gorm.DB)(user int, err error){
+	if err:=DB.Debug().Table("tbl_users").Where("id=?",id).Select("role_id").Scan(&user).Error; err!=nil{
+		return 0, err
+	}
+     return  user,nil
+}
+
 /*Get role by id*/
 func (as ModelStruct) GetRoleById(id int, DB *gorm.DB, tenantid int) (role Tblrole, err error) {
 
@@ -158,12 +165,12 @@ func (as ModelStruct) RoleDelete(id int, DB *gorm.DB, tenantid int) error {
 func (as ModelStruct) CheckRoleExists(role *TblRole, id int, name string, DB *gorm.DB, tenantid int) error {
 
 	if id == 0 {
-		if err := DB.Table("tbl_roles").Where("LOWER(TRIM(name))=LOWER(TRIM(?)) and is_deleted = 0 ", name).First(&role).Error; err != nil {
+		if err := DB.Table("tbl_roles").Where("LOWER(TRIM(name))=LOWER(TRIM(?)) and is_deleted = 0 and ((tenant_id is NULL or tenant_id = ?))", name,tenantid).First(&role).Error; err != nil {
 
 			return err
 		}
 	} else {
-		if err := DB.Table("tbl_roles").Where("LOWER(TRIM(name))=LOWER(TRIM(?)) and id not in(?) and is_deleted= 0 ", name, id).First(&role).Error; err != nil {
+		if err := DB.Table("tbl_roles").Where("LOWER(TRIM(name))=LOWER(TRIM(?)) and id not in(?) and is_deleted= 0 and (tenant_id is NULL or tenant_id = ?)", name, id,tenantid).First(&role).Error; err != nil {
 
 			return err
 		}
