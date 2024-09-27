@@ -74,8 +74,13 @@ type ModelStruct struct {
 }
 
 // Get all roles list with limit and offset
-func (as ModelStruct) GetAllRoles(limit, offset int, filter Filter, getalldata bool, DB *gorm.DB, tenantid int) (role []Tblrole, rolecount int64, err error) {
+func (as ModelStruct) GetAllRoles(limit, offset int, filter Filter, getalldata bool, DB *gorm.DB, tenantid int, active bool) (role []Tblrole, rolecount int64, err error) {
+	
 	query := DB.Table("tbl_roles").Where("is_deleted = 0 and (slug = ? or tenant_id = ?)", "admin", tenantid).Order("id desc")
+	
+	if active {
+		query = query.Where("is_active = 1")
+	}
 
 	if as.DataAccess == 1 {
 

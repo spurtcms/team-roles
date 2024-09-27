@@ -64,7 +64,7 @@ func TestRoleList(t *testing.T) {
 
 	if permisison {
 
-		rolelist, count, err := PermissionFlg.RoleList(Rolelist{Limit: 10, Offset: 0}, TenantId)
+		rolelist, count, err := PermissionFlg.RoleList(Rolelist{Limit: 10, Offset: 0}, TenantId,false)
 
 		if err != nil {
 

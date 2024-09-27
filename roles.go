@@ -26,7 +26,7 @@ func RoleSetup(config Config) *PermissionConfig {
 var AS ModelStruct
 
 // role list
-func (RoleConf *PermissionConfig) RoleList(rolelist Rolelist, tenantid int) (roles []Tblrole, rolecount int64, err error) {
+func (RoleConf *PermissionConfig) RoleList(rolelist Rolelist, tenantid int, isactive bool) (roles []Tblrole, rolecount int64, err error) {
 
 	//check if auth or permission enabled
 	if autherr := AuthandPermission(RoleConf); autherr != nil {
@@ -37,14 +37,14 @@ func (RoleConf *PermissionConfig) RoleList(rolelist Rolelist, tenantid int) (rol
 	AS.DataAccess = RoleConf.DataAccess
 	AS.UserId = RoleConf.UserId
 
-	role, _, errr := AS.GetAllRoles(rolelist.Limit, rolelist.Offset, rolelist.Filter, rolelist.GetAllData, RoleConf.DB, tenantid)
+	role, _, errr := AS.GetAllRoles(rolelist.Limit, rolelist.Offset, rolelist.Filter, rolelist.GetAllData, RoleConf.DB, tenantid, isactive)
 
 	if errr != nil {
 
 		fmt.Println(errr)
 	}
 
-	_, rolecounts, _ := AS.GetAllRoles(0, 0, rolelist.Filter, rolelist.GetAllData, RoleConf.DB, tenantid)
+	_, rolecounts,_ := AS.GetAllRoles(0, 0, rolelist.Filter, rolelist.GetAllData, RoleConf.DB, tenantid, isactive)
 
 	return role, rolecounts, nil
 
