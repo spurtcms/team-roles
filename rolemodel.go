@@ -123,7 +123,16 @@ func (as ModelStruct) RoleId(id int, DB *gorm.DB) (user int, err error) {
 /*Get role by id*/
 func (as ModelStruct) GetRoleById(id int, DB *gorm.DB, tenantid int) (role Tblrole, err error) {
 
-	if err := DB.Debug().Table("tbl_roles").Where("id=? and tenant_id = ?", id, tenantid).First(&role).Error; err != nil {
+	query := DB.Debug().Table("tbl_roles").Where("id = ?", id)
+
+	if tenantid != 0 {
+
+		query = query.Where("tenant_id = ? ", tenantid)
+
+	}
+
+	//please don't remove this tenant_id is NULL from where condition
+	if err := query.First(&role).Error; err != nil {
 
 		return Tblrole{}, err
 
