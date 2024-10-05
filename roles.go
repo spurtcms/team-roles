@@ -86,7 +86,7 @@ func (RoleConf *PermissionConfig) GetRoleById(roleid int, tenantid int) (tblrol 
 }
 
 // create role
-func (RoleConf *PermissionConfig) CreateRole(rolec RoleCreation) (Tblrole, error) {
+func (RoleConf *PermissionConfig) CreateRole(rolec RoleCreation, status int) (Tblrole, error) {
 
 	if autherr := AuthandPermission(RoleConf); autherr != nil {
 
@@ -111,6 +111,8 @@ func (RoleConf *PermissionConfig) CreateRole(rolec RoleCreation) (Tblrole, error
 	role.CreatedBy = rolec.CreatedBy
 
 	role.TenantId = rolec.TenantId
+
+	role.IsActive = status
 
 	err := AS.RoleCreate(&role, RoleConf.DB)
 

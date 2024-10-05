@@ -107,7 +107,7 @@ func TestCreateRole(t *testing.T) {
 
 	if permisison {
 
-		rolecreate, err := PermissionFlg.CreateRole(RoleCreation{Name: "Manager", Description: "", CreatedBy: 1})
+		rolecreate, err := PermissionFlg.CreateRole(RoleCreation{Name: "Manager", Description: "", CreatedBy: 1},1)
 
 		if err != nil {
 
