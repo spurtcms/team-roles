@@ -85,7 +85,7 @@ func (RoleConf *PermissionConfig) GetRoleById(roleid int, tenantid int) (tblrol 
 
 }
 
-// create role
+// function used to create a role
 func (RoleConf *PermissionConfig) CreateRole(rolec RoleCreation, status int) (Tblrole, error) {
 
 	if autherr := AuthandPermission(RoleConf); autherr != nil {
@@ -125,7 +125,7 @@ func (RoleConf *PermissionConfig) CreateRole(rolec RoleCreation, status int) (Tb
 
 }
 
-// update role
+// function used to update role
 func (RoleConf *PermissionConfig) UpdateRole(rolec RoleCreation, roleid int, tenantid int) (updaterole Tblrole, err error) {
 
 	//check if auth or permission enabled
@@ -266,6 +266,8 @@ func (RoleConf *PermissionConfig) RoleStatus(roleid int, status int, userid int,
 
 }
 
+
+// function used to retrieve a particular role by using role Name
 func (RoleConf *PermissionConfig) GetRoleByName(tenantid int) (tblrole []TblRole, err error) {
 
 	if autherr := AuthandPermission(RoleConf); autherr != nil {
