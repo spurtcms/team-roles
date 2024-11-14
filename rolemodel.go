@@ -179,12 +179,12 @@ func (as ModelStruct) RoleDelete(id int, DB *gorm.DB, tenantid int) error {
 func (as ModelStruct) CheckRoleExists(role *TblRole, id int, name string, DB *gorm.DB, tenantid int) error {
 
 	if id == 0 {
-		if err := DB.Table("tbl_roles").Where("LOWER(TRIM(name))=LOWER(TRIM(?)) and is_deleted = 0 and tenant_id = ?", name, tenantid).First(&role).Error; err != nil {
+		if err := DB.Debug().Table("tbl_roles").Where("LOWER(TRIM(name))=LOWER(TRIM(?)) and is_deleted = 0 and (tenant_id = ? or tenant_id is null)", name, tenantid).First(&role).Error; err != nil {
 
 			return err
 		}
 	} else {
-		if err := DB.Table("tbl_roles").Where("LOWER(TRIM(name))=LOWER(TRIM(?)) and id not in(?) and is_deleted= 0 and tenant_id = ?", name, id, tenantid).First(&role).Error; err != nil {
+		if err := DB.Debug().Table("tbl_roles").Where("LOWER(TRIM(name))=LOWER(TRIM(?)) and id not in(?) and is_deleted= 0 and  (tenant_id = ? or tenant_id is null)", name, id, tenantid).First(&role).Error; err != nil {
 
 			return err
 		}
