@@ -299,3 +299,17 @@ func (RoleConf *PermissionConfig) GetRoleBySlug(slug string,tenantid int) (role 
 
 }
 
+func (RoleConf *PermissionConfig) Rolescheckusers(roleid int, roleids []int, tenantid int) (bool, error) {
+
+	if autherr := AuthandPermission(RoleConf); autherr != nil {
+		return false, autherr
+	}
+	var teamschk tbluser
+
+	err := AS.Checkrolespermission(&teamschk, roleid, roleids, RoleConf.DB, tenantid)
+
+	if err != nil {
+		return false, err
+	}
+	return true, nil
+}
