@@ -294,9 +294,9 @@ func (as ModelStruct) GetRoleBySlug(slug string, DB *gorm.DB, tenantid int) (rol
 func (as ModelStruct) Checkrolespermission(user *tbluser, id int, ids []int, DB *gorm.DB, tenantid int) error {
 	query := DB.Table("tbl_users")
 	if id != 0 {
-		query = query.Where("role_id=? and tenant_id=?", id, tenantid)
+		query = query.Where("role_id=? and tenant_id=? and is_deleted=0", id, tenantid)
 	} else {
-		query = query.Where("role_id in (?) and tenant_id=?", ids, tenantid)
+		query = query.Where("role_id in (?) and tenant_id=? and is_deleted=0", ids, tenantid)
 	}
 	if err := query.Debug().First(&user).Error; err != nil {
 		return err

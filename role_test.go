@@ -15,10 +15,10 @@ func DBSetup() (*gorm.DB, error) {
 
 	dbConfig := map[string]string{
 		"username": "postgres",
-		"password": "root",
+		"password": "postgres",
 		"host":     "localhost",
 		"port":     "5432",
-		"dbname":   "spurt-cms-apr3",
+		"dbname":   "spurtcms_v2",
 	}
 
 	db, err := gorm.Open(postgres.New(postgres.Config{
@@ -43,7 +43,7 @@ func TestRoleList(t *testing.T) {
 
 	Auth := auth.AuthSetup(auth.Config{
 		UserId:     1,
-		ExpiryTime: 2,
+		// ExpiryTime: 2,
 		SecretKey:  SecretKey,
 		DB:         db,
 		RoleId:     1,
@@ -53,7 +53,7 @@ func TestRoleList(t *testing.T) {
 
 	Auth.VerifyToken(token, SecretKey)
 
-	permisison, _ := Auth.IsGranted("Roles & Permissions", auth.CRUD, TenantId)
+	permisison, _ := Auth.IsGranted("Roles & Permissions", auth.CRUD, 1)
 
 	PermissionFlg := RoleSetup(Config{
 		AuthEnable:       true,
@@ -64,7 +64,7 @@ func TestRoleList(t *testing.T) {
 
 	if permisison {
 
-		rolelist, count, err := PermissionFlg.RoleList(Rolelist{Limit: 10, Offset: 0}, TenantId,false)
+		rolelist, count, err := PermissionFlg.RoleList(Rolelist{Limit: 10, Offset: 0}, 1,false)
 
 		if err != nil {
 
@@ -86,7 +86,7 @@ func TestCreateRole(t *testing.T) {
 
 	Auth := auth.AuthSetup(auth.Config{
 		UserId:     1,
-		ExpiryTime: 2,
+		// ExpiryTime: 2,
 		SecretKey:  SecretKey,
 		DB:         db,
 		RoleId:     1,
@@ -96,7 +96,7 @@ func TestCreateRole(t *testing.T) {
 
 	Auth.VerifyToken(token, SecretKey)
 
-	permisison, _ := Auth.IsGranted("Roles & Permissions", auth.CRUD, TenantId)
+	permisison, _ := Auth.IsGranted("Roles & Permissions", auth.CRUD, 1)
 
 	PermissionFlg := RoleSetup(Config{
 		AuthEnable:       true,
@@ -107,7 +107,7 @@ func TestCreateRole(t *testing.T) {
 
 	if permisison {
 
-		rolecreate, err := PermissionFlg.CreateRole(RoleCreation{Name: "Manager", Description: "", CreatedBy: 1},1)
+		rolecreate, err := PermissionFlg.CreateRole(RoleCreation{Name: "Manager", Description: "", CreatedBy: 1,TenantId: 1},1)
 
 		if err != nil {
 
@@ -128,7 +128,7 @@ func TestUpdateRole(t *testing.T) {
 
 	Auth := auth.AuthSetup(auth.Config{
 		UserId:     1,
-		ExpiryTime: 2,
+		// ExpiryTime: 2,
 		SecretKey:  SecretKey,
 		DB:         db,
 		RoleId:     1,
@@ -138,7 +138,7 @@ func TestUpdateRole(t *testing.T) {
 
 	Auth.VerifyToken(token, SecretKey)
 
-	permisison, _ := Auth.IsGranted("Roles & Permissions", auth.CRUD, TenantId)
+	permisison, _ := Auth.IsGranted("Roles & Permissions", auth.CRUD, 1)
 
 	PermissionFlg := RoleSetup(Config{
 		AuthEnable:       true,
@@ -149,7 +149,7 @@ func TestUpdateRole(t *testing.T) {
 
 	if permisison {
 
-		rolecreate, err := PermissionFlg.UpdateRole(RoleCreation{Name: "Manager", Description: "deportment of marketting", CreatedBy: 1}, 3, TenantId)
+		rolecreate, err := PermissionFlg.UpdateRole(RoleCreation{Name: "Manager", Description: "deportment of marketting", CreatedBy: 1}, 3, 1)
 
 		if err != nil {
 
@@ -171,7 +171,7 @@ func TestDeleteRole(t *testing.T) {
 
 	Auth := auth.AuthSetup(auth.Config{
 		UserId:     1,
-		ExpiryTime: 2,
+		// ExpiryTime: 2,
 		SecretKey:  SecretKey,
 		DB:         db,
 		RoleId:     1,
@@ -181,7 +181,7 @@ func TestDeleteRole(t *testing.T) {
 
 	Auth.VerifyToken(token, SecretKey)
 
-	permisison, _ := Auth.IsGranted("Roles & Permissions", auth.CRUD, TenantId)
+	permisison, _ := Auth.IsGranted("Roles & Permissions", auth.CRUD, 1)
 
 	PermissionFlg := RoleSetup(Config{
 		AuthEnable:       true,
@@ -192,7 +192,7 @@ func TestDeleteRole(t *testing.T) {
 
 	if permisison {
 
-		flg, err := PermissionFlg.DeleteRole([]int{}, 1, TenantId)
+		flg, err := PermissionFlg.DeleteRole([]int{}, 3, 1)
 
 		if err != nil {
 
@@ -214,7 +214,7 @@ func TestCheckRole(t *testing.T) {
 
 	Auth := auth.AuthSetup(auth.Config{
 		UserId:     1,
-		ExpiryTime: 2,
+		// ExpiryTime: 2,
 		SecretKey:  SecretKey,
 		DB:         db,
 		RoleId:     1,
@@ -224,7 +224,7 @@ func TestCheckRole(t *testing.T) {
 
 	Auth.VerifyToken(token, SecretKey)
 
-	permisison, _ := Auth.IsGranted("Roles & Permissions", auth.CRUD, TenantId)
+	permisison, _ := Auth.IsGranted("Roles & Permissions", auth.CRUD, 1)
 
 	PermissionFlg := RoleSetup(Config{
 		AuthEnable:       true,
@@ -234,7 +234,7 @@ func TestCheckRole(t *testing.T) {
 	})
 
 	if permisison {
-		flg, err := PermissionFlg.CheckRoleAlreadyExists(3, "Manager", TenantId)
+		flg, err := PermissionFlg.CheckRoleAlreadyExists(3, "Manager", 1)
 
 		if err != nil {
 
