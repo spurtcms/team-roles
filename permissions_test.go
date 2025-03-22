@@ -73,7 +73,7 @@ func TestPermissionsList(t *testing.T) {
 		Authenticate: &auth.Auth{},
 	})
 
-	module, count, err := PermissionFlg.PermissionListRoleId(100, 0, 1, Filter{}, 1)
+	module, count, err := PermissionFlg.PermissionListRoleId(100, 0, 1, Filter{}, "1")
 
 	if err != nil {
 
@@ -92,7 +92,7 @@ func TestPermissionsRole(t *testing.T) {
 		Authenticate: &auth.Auth{},
 	})
 
-	module, err := PermissionFlg.GetPermissionDetailsById(1, 1)
+	module, err := PermissionFlg.GetPermissionDetailsById(1, "1")
 
 	if err != nil {
 

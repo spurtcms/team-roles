@@ -157,7 +157,7 @@ func (permission *PermissionConfig) CreateUpdatePermission(Perm MultiPermissin) 
 
 }
 
-func (permission *PermissionConfig) PermissionList(tenantid int) (menu []MenuMod, err error) {
+func (permission *PermissionConfig) PermissionList(tenantid string) (menu []MenuMod, err error) {
 
 	if autherr := AuthandPermission(permission); autherr != nil {
 
@@ -238,7 +238,7 @@ func (permission *PermissionConfig) PermissionList(tenantid int) (menu []MenuMod
 }
 
 // permission List
-func (permission *PermissionConfig) PermissionListRoleId(limit, offset, roleid int, filter Filter, tenantid int) (Module []Tblmodule, count int64, err error) {
+func (permission *PermissionConfig) PermissionListRoleId(limit, offset, roleid int, filter Filter, tenantid string) (Module []Tblmodule, count int64, err error) {
 
 	if autherr := AuthandPermission(permission); autherr != nil {
 
@@ -457,7 +457,7 @@ func (permission *PermissionConfig) PermissionListRoleId(limit, offset, roleid i
 }
 
 // permission List
-func (permission *PermissionConfig) GetPermissionDetailsById(roleid int, tenantid int) (rolepermissionid []int, err error) {
+func (permission *PermissionConfig) GetPermissionDetailsById(roleid int, tenantid string) (rolepermissionid []int, err error) {
 
 	if autherr := AuthandPermission(permission); autherr != nil {
 
